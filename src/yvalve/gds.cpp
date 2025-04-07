@@ -124,9 +124,11 @@ static char* fb_prefix = NULL;
 static char* fb_prefix_lock = NULL;
 static char* fb_prefix_msg = NULL;
 
-#define FB_IMPL_MSG_NO_SYMBOL(facility, number, text)
+#define FB_IMPL_MSG_NO_SYMBOL(facility, number, text) \
+	{ENCODE_ISC_MSG(number, FB_IMPL_MSG_FACILITY_##facility), text},
 
-#define FB_IMPL_MSG_SYMBOL(facility, number, symbol, text)
+#define FB_IMPL_MSG_SYMBOL(facility, number, symbol, text) \
+	{ENCODE_ISC_MSG(number, FB_IMPL_MSG_FACILITY_##facility), text},
 
 #define FB_IMPL_MSG(facility, number, symbol, sqlCode, sqlClass, sqlSubClass, text) \
 	{ENCODE_ISC_MSG(number, FB_IMPL_MSG_FACILITY_##facility), text},
