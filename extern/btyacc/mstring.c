@@ -1,18 +1,20 @@
-#include "defs.h"
-#include "mstring.h"
+#include <stdlib.h>
+#include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
+#include <ctype.h>
+#include "mstring.h"
 
-/* parameters about string length.  START_STR is the starting size and
-** START_STR+TAIL should be a power of two
-Renamed to START_STR because START is defined in defs.h with another value */
-#define START_STR	24
+/* parameters about string length.  START is the starting size and
+** START+TAIL should be a power of two */
+#define START	24
 #define TAIL	8
 
 void msprintf(struct mstring *s, const char *fmt, ...)
 {
 static char	buf[4096];	/* a big static buffer */
 va_list		args;
-int		len;
+size_t		len;
 
     if (!s || !s->base) return;
     va_start(args, fmt);
@@ -52,12 +54,18 @@ int mputchar(struct mstring *s, int ch)
 struct mstring *msnew(void) {
     struct mstring *n = malloc(sizeof(struct mstring));
 
-    if (n && (n->base = n->ptr = malloc(START_STR)))
-	n->end = n->base + START_STR;
+    if (n && (n->base = n->ptr = malloc(START)))
+	n->end = n->base + START;
     else if (n) {
 	free(n);
 	n = 0; }
     return n;
+}
+
+void mstrim(struct mstring *s, const char *trim)
+{
+    while (s && s->ptr > s->base && strchr(trim, s->ptr[-1]))
+	s->ptr--;
 }
 
 char *msdone(struct mstring *s)

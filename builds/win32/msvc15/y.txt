@@ -1,0 +1,76 @@
+C:/Users/P1cheneG/Pictures/m/y.y:869: Cannot open include file types.y
+C:/Users/P1cheneG/Pictures/m/y.y:881: $1 (statement) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:884: $1 (statement) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:890: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:890: $1 (dml_statement) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:892: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:892: $1 (ddl_statement) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:894: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:894: $1 (tra_statement) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:897: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:898: $1 (mng_statement) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:904: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:904: $1 (delete) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:905: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:905: $1 (insert) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:906: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:906: $1 (merge) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:907: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:907: $1 (exec_procedure) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:908: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:908: $1 (call) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:909: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:909: $1 (exec_block) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:910: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:910: $1 (select) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:911: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:911: $1 (update) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:912: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:912: $1 (update_or_insert) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:917: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:917: $1 (alter) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:918: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:918: $1 (comment) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:919: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:919: $1 (create) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:920: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:920: $1 (create_or_alter) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:921: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:921: $1 (declare) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:922: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:922: $1 (drop) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:923: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:923: $1 (grant) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:924: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:924: $1 (recreate) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:925: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:925: $1 (revoke) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:926: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:926: $1 (set_statistics) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:931: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:931: $1 (set_transaction) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:932: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:932: $1 (savepoint) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:933: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:933: $1 (commit) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:934: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:934: $1 (rollback) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:939: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:939: $1 (set_debug_option) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:940: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:940: $1 (set_decfloat_round) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:941: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:941: $1 (set_decfloat_traps) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:942: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:942: $1 (session_statement) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:943: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:943: $1 (set_role) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:944: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:944: $1 (session_reset) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:945: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:945: $1 (set_time_zone) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:946: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:946: $1 (set_bind) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:947: $$ is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:947: $1 (set_optimize) is untyped
+C:/Users/P1cheneG/Pictures/m/y.y:956: $$ is untyped
