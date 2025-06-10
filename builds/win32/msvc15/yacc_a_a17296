@@ -1,0 +1,13 @@
+case 1:
+  if (!yytrial)
+{
+			if (requireSemicolon)
+				yyerrorIncompleteCmd(YYPOSNARG(1));
+
+			parsedStatement = yyvsp[0].dsqlStatement;
+		}
+break;
+case 2:
+  if (!yytrial)
+{ parsedStatement = yyvsp[-1].dsqlStatement; }
+break;

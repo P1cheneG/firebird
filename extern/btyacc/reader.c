@@ -48,12 +48,73 @@ char *name_pool;
 
 char line_format[] = "#line %d \"%s\"\n";
 
+char included;
+
 int cachec(int c)
 {
     assert(cinc >= 0);
     if (cinc >= cache_size) {
 	if (!(cache = REALLOC(cache, cache_size += 256))) no_space(); }
     return cache[cinc++] = c;
+}
+
+
+
+void get_types() {
+	FILE* ff;
+	int c;
+	int i;
+	char saw_eoff = 0;
+	ff = fopen(input_file_name, "r");
+	char first_open = 0;
+NextLine:;
+	
+	i = 0;
+
+	if (saw_eoff || (c = getc(ff)) == EOF) {
+		if (line) FREE(line);
+		line = NULL;
+		saw_eoff = 1;
+		lineno = 0;
+		return;
+	}
+	if (line == 0 || linesize != (LINESIZE + 1)) {
+		if (line) FREE(line);
+		linesize = LINESIZE + 1;
+		if (!(line = MALLOC(linesize))) no_space();
+	}
+	++lineno;
+	while ((line[i] = c) != '\n') {
+		if (++i + 1 >= linesize)
+			if (!(line = REALLOC(line, linesize += LINESIZE)))
+				no_space();
+		if ((c = getc(ff)) == EOF) {
+			c = '\n';
+			saw_eoff = 1;
+		}
+	}
+	line[i + 1] = 0;
+
+	if (strncmp(&line[0], "%type ", 6) == 0) {
+		FILE* ffile;
+		if (!first_open)
+		{
+			ffile = fopen("types.y", "w");
+			first_open = 1;
+		}
+		else
+		{
+			ffile = fopen("types.y", "a");
+		}
+		if (ffile == NULL) {
+			error(lineno, 0, 0, "Cannot open include file %s", "types.y");
+		}
+		else {
+			fprintf(ffile, "%s", line);
+			fclose(ffile);
+		}
+	}
+	goto NextLine;
 }
 
 /*
@@ -183,6 +244,10 @@ char *get_line() {
     *++ps = NULL;
     goto NextLine;
   }
+
+  /*if (strncmp(&line[0], "%type ", 6) == 0) {
+	  goto NextLine;
+  }*/
 
   if(Eflag) {
     printf("YPP: %s", line);
@@ -1624,13 +1689,19 @@ void read_grammar()
 {
     register int c;
 
+	included = 1;
+
     initialize_grammar();
     advance_to_start();
 
     for (;;) {
 	c = nextc();
 	if (c == EOF) break;
-	if (isalpha(c) || c == '_' || c == '.' || c == '$' || c == '\'' ||
+	if (strncmp(&line[0], "%type ", 6) == 0 && included) {
+		++cptr;
+		continue;
+	}
+	else if (isalpha(c) || c == '_' || c == '.' || c == '$' || c == '\'' ||
 		c == '"')
 	    add_symbol();
 	else if (c == '{' || c == '=' || c == '[')
@@ -1879,6 +1950,7 @@ void print_grammar()
 extern int read_errs;
 
 void reader() {
+  get_types();
   write_section("banner");
   create_symbol_table();
   read_declarations();

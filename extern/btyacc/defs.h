@@ -451,6 +451,7 @@ void write_section(char *section_name);
 /* reader.c */
 int cachec(int);
 char *get_line(void);
+void get_types();
 char *dup_line(void);
 char *skip_comment(void);
 int nextc(void);
