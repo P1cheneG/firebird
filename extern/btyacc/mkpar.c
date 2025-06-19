@@ -19,6 +19,30 @@ action *get_shifts(int stateno);
 action *add_reductions(int stateno, action *actions);
 action *add_reduce(action *actions, int ruleno, int symbol);
 
+char first_open_conflict_file = 0;
+
+int conflict_count = 0;
+
+void write_conflicts(char *symbol, int ruleno)
+{
+	FILE* ffile;
+	if (!first_open_conflict_file)
+	{
+		ffile = fopen("conflicts_list.txt", "w");
+		first_open_conflict_file = 1;
+	}
+	else
+	{
+		ffile = fopen("conflicts_list.txt", "a");
+	}
+	if (ffile == NULL) {
+		error(lineno, 0, 0, "Cannot open conflicts_list file for writing %s", "conflicts_list.txt");
+	}
+	else {
+		fprintf(ffile, "%d:%s conflict on line %d\n", ++conflict_count, symbol, rule_line[ruleno]);
+		fclose(ffile);
+	}
+}
 
 void make_parser()
 {
@@ -205,6 +229,7 @@ void remove_conflicts()
 		symbol = p->symbol; }
 	    else if (i == final_state && symbol == 0) {
 		SRcount++;
+		write_conflicts(symbol_name[pref->symbol], pref->number);
 		p->suppressed = 1;
 		if (!pref->suppressed)
 		    pref->suppressed = 1; }
@@ -225,11 +250,13 @@ void remove_conflicts()
 			p->suppressed = 2; } }
 		else {
 		    SRcount++;
+			write_conflicts(symbol_name[pref->symbol], pref->number);
 		    p->suppressed = 1;
 		    if (!pref->suppressed)
 			pref->suppressed = 1; } }
 	    else {
 		RRcount++;
+		write_conflicts(symbol_name[pref->symbol], pref->number);
 		p->suppressed = 1;
 		if (!pref->suppressed)
 		    pref->suppressed = 1; } }

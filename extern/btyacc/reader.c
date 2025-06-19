@@ -67,8 +67,10 @@ void get_types() {
 	char saw_eoff = 0;
 	ff = fopen(input_file_name, "r");
 	char first_open = 0;
+	cptr = NULL;
+	int xxx = 0;
+	get_line();
 NextLine:;
-	
 	i = 0;
 
 	if (saw_eoff || (c = getc(ff)) == EOF) {
@@ -76,6 +78,8 @@ NextLine:;
 		line = NULL;
 		saw_eoff = 1;
 		lineno = 0;
+		if (cptr) FREE(cptr);
+		cptr = NULL;
 		return;
 	}
 	if (line == 0 || linesize != (LINESIZE + 1)) {
@@ -96,6 +100,44 @@ NextLine:;
 	line[i + 1] = 0;
 
 	if (strncmp(&line[0], "%type ", 6) == 0) {
+
+
+		/*register bucket* bp = 0;
+		char* tag = 0;
+		for (int i = 0; i < 7; i++)
+		{
+			c = getc(ff);
+		}
+		if (c == '<') {
+			tag = get_tag();
+			c = getc(ff);
+		}
+		if (c == EOF) unexpected_EOF();
+
+		for (;;) {
+			c = getc(ff);
+			if (isalpha(c) || c == '_' || c == '.' || c == '$') {
+				bp = get_name();
+				if (getc(ff) == '(')
+					declare_argtypes(bp);
+				else
+					bp->args = 0;
+			}
+			else if (c == '\'' || c == '"') {
+				bp = get_literal();
+				bp->args = 0;
+			}
+			else
+				return;
+
+			if (tag) {
+				if (bp->tag && tag != bp->tag)
+					retyped_warning(bp->name);
+				bp->tag = tag;
+			}
+		}*/
+
+
 		FILE* ffile;
 		if (!first_open)
 		{
@@ -107,13 +149,17 @@ NextLine:;
 			ffile = fopen("types.y", "a");
 		}
 		if (ffile == NULL) {
-			error(lineno, 0, 0, "Cannot open include file %s", "types.y");
+			error(lineno, 0, 0, "Cannot open include file for writing %s", "types.y");
 		}
 		else {
 			fprintf(ffile, "%s", line);
 			fclose(ffile);
 		}
+
+		cptr += 6;
+		declare_types();
 	}
+	get_line();
 	goto NextLine;
 }
 
@@ -245,9 +291,6 @@ char *get_line() {
     goto NextLine;
   }
 
-  /*if (strncmp(&line[0], "%type ", 6) == 0) {
-	  goto NextLine;
-  }*/
 
   if(Eflag) {
     printf("YPP: %s", line);
@@ -994,6 +1037,11 @@ void initialize_grammar()
     rassoc[0] = TOKEN;
     rassoc[1] = TOKEN;
     rassoc[2] = TOKEN;
+	rule_line = NEW2(maxrules, int); 
+	if (rule_line == 0) no_space();
+	rule_line[0] = 0;
+	rule_line[1] = 0;
+	rule_line[2] = 0;
 }
 
 void expand_items()
@@ -1012,6 +1060,8 @@ void expand_rules()
     if (rprec == 0) no_space();
     rassoc = RENEW(rassoc, maxrules, char);
     if (rassoc == 0) no_space();
+	rule_line = RENEW(rule_line, maxrules, int);
+	if (rule_line == 0) no_space();
 }
 
 /* set in copy_args and incremented by the various routines that will rescan
@@ -1295,6 +1345,7 @@ void start_rule(bucket *bp, int s_lineno)
     if (!bp->index) bp->index = nrules;
     if (nrules >= maxrules)
 	expand_rules();
+	rule_line[nrules] = s_lineno;
     plhs[nrules] = bp;
     rprec[nrules] = UNDEFINED;
     rassoc[nrules] = TOKEN;
@@ -1343,6 +1394,8 @@ void insert_empty_rule()
     rprec[nrules-1] = 0;
     rassoc[nrules] = rassoc[nrules-1];
     rassoc[nrules-1] = TOKEN;
+	rule_line[nrules] = rule_line[nrules - 1];
+	rule_line[nrules - 1] = 0;
 }
 
 static char *insert_arg_rule(char *arg, char *tag)
@@ -1682,6 +1735,7 @@ int mark_symbol()
 
     rprec[nrules] = bp->prec;
     rassoc[nrules] = bp->assoc;
+	rule_line[nrules] = lineno;
     return (0);
 }
 
@@ -1698,7 +1752,39 @@ void read_grammar()
 	c = nextc();
 	if (c == EOF) break;
 	if (strncmp(&line[0], "%type ", 6) == 0 && included) {
-		++cptr;
+		//++cptr;
+		cptr += 6;
+		register bucket* bp = 0;
+		char* tag = 0;
+
+		c = nextc();
+		if (c == '<') {
+			tag = get_tag();
+			c = nextc();
+		}
+		if (c == EOF) unexpected_EOF();
+
+		c = nextc();
+		if (isalpha(c) || c == '_' || c == '.' || c == '$') {
+			bp = get_name();
+			if (nextc() == '(')
+				declare_argtypes(bp);
+			else
+				bp->args = 0;
+		}
+		else if (c == '\'' || c == '"') {
+			bp = get_literal();
+			bp->args = 0;
+		}
+		else
+			continue;
+
+		if (tag) {
+			if (bp->tag && tag != bp->tag)
+				retyped_warning(bp->name);
+			bp->tag = tag;
+		}
+		
 		continue;
 	}
 	else if (isalpha(c) || c == '_' || c == '.' || c == '$' || c == '\'' ||
@@ -1876,6 +1962,8 @@ void pack_grammar()
     if (rprec == 0) no_space();
     rassoc = RENEW(rassoc, nrules, char);
     if (rassoc == 0) no_space();
+	rule_line = RENEW(rule_line, nrules, int);
+	if (rule_line == 0) no_space();
 
     ritem[0] = -1;
     ritem[1] = goal->index;
@@ -1950,9 +2038,9 @@ void print_grammar()
 extern int read_errs;
 
 void reader() {
-  get_types();
   write_section("banner");
   create_symbol_table();
+  get_types();
   read_declarations();
   read_grammar();
   if(read_errs) done(1);

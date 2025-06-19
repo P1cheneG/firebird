@@ -75,6 +75,7 @@ Yshort *rlhs;
 Yshort *rrhs;
 Yshort *rprec;
 char  *rassoc;
+int *rule_line;
 Yshort **derives;
 char *nullable;
 

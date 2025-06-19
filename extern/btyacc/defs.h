@@ -265,6 +265,8 @@ extern Yshort *rrhs;
 extern Yshort *rprec;
 extern char  *rassoc;
 
+extern int *rule_line;
+
 extern Yshort **derives;
 extern char *nullable;
 
