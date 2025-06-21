@@ -866,7 +866,7 @@ using namespace Firebird;
 	Jrd::SessionResetNode* sessionResetNode;
 }
 
-%include types.y
+// %include types.y
 
 %%
 

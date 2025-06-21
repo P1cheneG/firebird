@@ -48,7 +48,7 @@ char *name_pool;
 
 char line_format[] = "#line %d \"%s\"\n";
 
-char included;
+char types = 0;
 
 int cachec(int c)
 {
@@ -133,7 +133,7 @@ void declare_types_types()
 				bp->args = 0;
 		}
 		else if (c == '\'' || c == '"') {
-			bp = get_literal_types();
+			bp = get_literal();
 			bp->args = 0;
 		}
 		else
@@ -190,126 +190,6 @@ bucket* get_name_types()
 
 
 
-bucket* get_literal_types()
-{
-	register int c, quote;
-	register int i;
-	register int n;
-	register char* s;
-	register bucket* bp;
-	int s_lineno = lineno;
-	char* s_line = dup_line();
-	char* s_cptr = s_line + (cptr - line);
-
-	quote = *cptr++;
-	cinc = 0;
-	for (;;) {
-		c = *cptr++;
-		if (c == quote) break;
-		if (c == '\n') unterminated_string(s_lineno, s_line, s_cptr);
-		if (c == '\\') {
-			char* c_cptr = cptr - 1;
-			c = *cptr++;
-			switch (c) {
-			case '\n':
-				unterminated_string(s_lineno, s_line, s_cptr);
-				continue;
-			case '0': case '1': case '2': case '3':
-			case '4': case '5': case '6': case '7':
-				n = c - '0';
-				c = *cptr;
-				if (IS_OCTAL(c)) {
-					n = (n << 3) + (c - '0');
-					c = *++cptr;
-					if (IS_OCTAL(c)) {
-						n = (n << 3) + (c - '0');
-						++cptr;
-					}
-				}
-				if (n > MAXCHAR) illegal_character(c_cptr);
-				c = n;
-				break;
-			case 'x':
-				c = *cptr++;
-				n = hexval(c);
-				if (n < 0 || n >= 16)
-					illegal_character(c_cptr);
-				for (;;) {
-					c = *cptr;
-					i = hexval(c);
-					if (i < 0 || i >= 16) break;
-					++cptr;
-					n = (n << 4) + i;
-					if (n > MAXCHAR) illegal_character(c_cptr);
-				}
-				c = n;
-				break;
-			case 'a': c = 7; break;
-			case 'b': c = '\b'; break;
-			case 'f': c = '\f'; break;
-			case 'n': c = '\n'; break;
-			case 'r': c = '\r'; break;
-			case 't': c = '\t'; break;
-			case 'v': c = '\v'; break;
-			}
-		}
-		cachec(c);
-	}
-	FREE(s_line);
-
-	n = cinc;
-	s = MALLOC(n);
-	if (s == 0) no_space();
-
-	for (i = 0; i < n; ++i)
-		s[i] = cache[i];
-
-	cinc = 0;
-	if (n == 1)
-		cachec('\'');
-	else
-		cachec('"');
-
-	for (i = 0; i < n; ++i) {
-		c = ((unsigned char*)s)[i];
-		if (c == '\\' || c == cache[0]) {
-			cachec('\\');
-			cachec(c);
-		}
-		else if (isprint(c))
-			cachec(c);
-		else {
-			cachec('\\');
-			switch (c) {
-			case 7: cachec('a'); break;
-			case '\b': cachec('b'); break;
-			case '\f': cachec('f'); break;
-			case '\n': cachec('n'); break;
-			case '\r': cachec('r'); break;
-			case '\t': cachec('t'); break;
-			case '\v': cachec('v'); break;
-			default:
-				cachec(((c >> 6) & 7) + '0');
-				cachec(((c >> 3) & 7) + '0');
-				cachec((c & 7) + '0');
-				break;
-			}
-		}
-	}
-	if (n == 1)
-		cachec('\'');
-	else
-		cachec('"');
-
-	cachec(NUL);
-	bp = lookup(cache);
-	bp->class = TERM;
-	if (n == 1 && bp->value == UNDEFINED)
-		bp->value = *(unsigned char*)s;
-	FREE(s);
-
-	return (bp);
-}
 
 
 int nextc_line()
@@ -348,7 +228,7 @@ void get_types() {
 	ff = fopen(input_file_name, "r");
 	char first_open = 0;
 	cptr = NULL;
-	int xxx = 0;
+	types = 1;
 NextLine:;
 	i = 0;
 
@@ -358,6 +238,7 @@ NextLine:;
 		saw_eoff = 1;
 		lineno = 0;
 		cptr = NULL;
+		types = 0;
 		return;
 	}
 	if (line == 0 || linesize != (LINESIZE + 1)) {
@@ -861,8 +742,15 @@ bucket *get_literal()
 	    c = *cptr++;
 	    switch (c) {
 	    case '\n':
-		get_line();
-		if (line == 0) unterminated_string(s_lineno, s_line, s_cptr);
+			if (types)
+			{
+				unterminated_string(s_lineno, s_line, s_cptr);
+			}
+			else
+			{ 
+				get_line();
+				if (line == 0) unterminated_string(s_lineno, s_line, s_cptr);
+			}
 		continue;
 	    case '0': case '1': case '2': case '3':
 	    case '4': case '5': case '6': case '7':
@@ -1963,48 +1851,14 @@ void read_grammar()
 {
     register int c;
 
-	included = 1;
-
     initialize_grammar();
     advance_to_start();
 
     for (;;) {
 	c = nextc();
 	if (c == EOF) break;
-	if (strncmp(&line[0], "%type ", 6) == 0 && included) {
-		//++cptr;
-		cptr += 6;
-		register bucket* bp = 0;
-		char* tag = 0;
-
-		c = nextc();
-		if (c == '<') {
-			tag = get_tag();
-			c = nextc();
-		}
-		if (c == EOF) unexpected_EOF();
-
-		c = nextc();
-		if (isalpha(c) || c == '_' || c == '.' || c == '$') {
-			bp = get_name();
-			if (nextc() == '(')
-				declare_argtypes(bp);
-			else
-				bp->args = 0;
-		}
-		else if (c == '\'' || c == '"') {
-			bp = get_literal();
-			bp->args = 0;
-		}
-		else
-			continue;
-
-		if (tag) {
-			if (bp->tag && tag != bp->tag)
-				retyped_warning(bp->name);
-			bp->tag = tag;
-		}
-		
+	if (strncmp(&line[0], "%type ", 6) == 0) {
+		get_line();
 		continue;
 	}
 	else if (isalpha(c) || c == '_' || c == '.' || c == '$' || c == '\'' ||
