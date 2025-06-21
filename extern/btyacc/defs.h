@@ -492,6 +492,12 @@ void pack_grammar(void);
 void print_grammar(void);
 void reader(void);
 
+
+void declare_types_types(void);
+char* get_tag_types(void);
+bucket* get_name_types(void);
+bucket* get_literal_types(void);
+int nextc_line(void);
 /* readskel.c */
 void read_skel(char *);
 

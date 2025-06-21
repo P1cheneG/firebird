@@ -59,6 +59,286 @@ int cachec(int c)
 }
 
 
+static char* cache_tag(char* tag, int len)
+{
+	int	i;
+	char* s;
+
+	for (i = 0; i < ntags; ++i) {
+		if (strncmp(tag, tag_table[i], len) == 0 &&
+			// VM: this is bug fix proposed by Matthias Meixner
+			tag_table[i][len] == 0)
+			return (tag_table[i]);
+	}
+	if (ntags >= tagmax) {
+		tagmax += 16;
+		tag_table = tag_table ? RENEW(tag_table, tagmax, char*)
+			: NEW2(tagmax, char*);
+		if (tag_table == 0) no_space();
+	}
+	s = MALLOC(len + 1);
+	if (s == 0) no_space();
+	strncpy(s, tag, len);
+	s[len] = 0;
+	tag_table[ntags++] = s;
+	return s;
+}
+
+static void declare_argtypes_types(bucket* bp)
+{
+	char* tags[MAXARGS];
+	int	args = 0, c;
+
+	if (bp->args >= 0) retyped_warning(bp->name);
+	cptr++; /* skip open paren */
+	for (;;) {
+		c = nextc_line();
+		if (c == '\n') unexpected_EOF();
+		if (c != '<') syntax_error(lineno, line, cptr);
+		tags[args++] = get_tag_types();
+		c = nextc_line();
+		if (c == ')') break;
+		if (c == '\n') unexpected_EOF();
+	}
+	cptr++; /* skip close paren */
+	bp->args = args;
+	if (!(bp->argnames = NEW2(args, char*))) no_space();
+	if (!(bp->argtags = NEW2(args, char*))) no_space();
+	while (--args >= 0) {
+		bp->argtags[args] = tags[args];
+		bp->argnames[args] = 0;
+	}
+}
+
+void declare_types_types()
+{
+	register int c;
+	register bucket* bp = 0;
+	char* tag = 0;
+
+	c = nextc_line();
+	if (c == '<') {
+		tag = get_tag_types();
+		c = nextc_line();
+	}
+	if (c == '\n') unexpected_EOF();
+
+	for (;;) {
+		c = nextc_line();
+		if (isalpha(c) || c == '_' || c == '.' || c == '$') {
+			bp = get_name_types();
+			if (nextc_line() == '(')
+				declare_argtypes_types(bp);
+			else
+				bp->args = 0;
+		}
+		else if (c == '\'' || c == '"') {
+			bp = get_literal_types();
+			bp->args = 0;
+		}
+		else
+			return;
+
+		if (tag) {
+			if (bp->tag && tag != bp->tag)
+				retyped_warning(bp->name);
+			bp->tag = tag;
+		}
+	}
+}
+
+
+char* get_tag_types()
+{
+	register int c;
+	int t_lineno = lineno;
+	char* t_line = dup_line();
+	char* t_cptr = t_line + (cptr - line);
+
+	++cptr;
+	c = nextc_line();
+	if (c == '\n') unexpected_EOF();
+	if (!isalpha(c) && c != '_' && c != '$')
+		illegal_tag(t_lineno, t_line, t_cptr);
+
+	cinc = 0;
+	do { cachec(c); c = *++cptr; } while (IS_IDENT(c));
+
+	c = nextc_line();
+	if (c == '\n') unexpected_EOF();
+	if (c != '>')
+		illegal_tag(t_lineno, t_line, t_cptr);
+	++cptr;
+
+	FREE(t_line);
+	havetags = 1;
+	return cache_tag(cache, cinc);
+}
+
+
+bucket* get_name_types()
+{
+	register int c;
+
+	cinc = 0;
+	for (c = *cptr; IS_IDENT(c); c = *++cptr)
+		cachec(c);
+	cachec(NUL);
+	if (is_reserved(cache)) used_reserved(cache);
+	return (lookup(cache));
+}
+
+
+
+bucket* get_literal_types()
+{
+	register int c, quote;
+	register int i;
+	register int n;
+	register char* s;
+	register bucket* bp;
+	int s_lineno = lineno;
+	char* s_line = dup_line();
+	char* s_cptr = s_line + (cptr - line);
+
+	quote = *cptr++;
+	cinc = 0;
+	for (;;) {
+		c = *cptr++;
+		if (c == quote) break;
+		if (c == '\n') unterminated_string(s_lineno, s_line, s_cptr);
+		if (c == '\\') {
+			char* c_cptr = cptr - 1;
+			c = *cptr++;
+			switch (c) {
+			case '\n':
+				unterminated_string(s_lineno, s_line, s_cptr);
+				continue;
+			case '0': case '1': case '2': case '3':
+			case '4': case '5': case '6': case '7':
+				n = c - '0';
+				c = *cptr;
+				if (IS_OCTAL(c)) {
+					n = (n << 3) + (c - '0');
+					c = *++cptr;
+					if (IS_OCTAL(c)) {
+						n = (n << 3) + (c - '0');
+						++cptr;
+					}
+				}
+				if (n > MAXCHAR) illegal_character(c_cptr);
+				c = n;
+				break;
+			case 'x':
+				c = *cptr++;
+				n = hexval(c);
+				if (n < 0 || n >= 16)
+					illegal_character(c_cptr);
+				for (;;) {
+					c = *cptr;
+					i = hexval(c);
+					if (i < 0 || i >= 16) break;
+					++cptr;
+					n = (n << 4) + i;
+					if (n > MAXCHAR) illegal_character(c_cptr);
+				}
+				c = n;
+				break;
+			case 'a': c = 7; break;
+			case 'b': c = '\b'; break;
+			case 'f': c = '\f'; break;
+			case 'n': c = '\n'; break;
+			case 'r': c = '\r'; break;
+			case 't': c = '\t'; break;
+			case 'v': c = '\v'; break;
+			}
+		}
+		cachec(c);
+	}
+	FREE(s_line);
+
+	n = cinc;
+	s = MALLOC(n);
+	if (s == 0) no_space();
+
+	for (i = 0; i < n; ++i)
+		s[i] = cache[i];
+
+	cinc = 0;
+	if (n == 1)
+		cachec('\'');
+	else
+		cachec('"');
+
+	for (i = 0; i < n; ++i) {
+		c = ((unsigned char*)s)[i];
+		if (c == '\\' || c == cache[0]) {
+			cachec('\\');
+			cachec(c);
+		}
+		else if (isprint(c))
+			cachec(c);
+		else {
+			cachec('\\');
+			switch (c) {
+			case 7: cachec('a'); break;
+			case '\b': cachec('b'); break;
+			case '\f': cachec('f'); break;
+			case '\n': cachec('n'); break;
+			case '\r': cachec('r'); break;
+			case '\t': cachec('t'); break;
+			case '\v': cachec('v'); break;
+			default:
+				cachec(((c >> 6) & 7) + '0');
+				cachec(((c >> 3) & 7) + '0');
+				cachec((c & 7) + '0');
+				break;
+			}
+		}
+	}
+	if (n == 1)
+		cachec('\'');
+	else
+		cachec('"');
+
+	cachec(NUL);
+	bp = lookup(cache);
+	bp->class = TERM;
+	if (n == 1 && bp->value == UNDEFINED)
+		bp->value = *(unsigned char*)s;
+	FREE(s);
+
+	return (bp);
+}
+
+
+int nextc_line()
+{
+	register char* s;
+
+	if (line == 0)
+		return (EOF);
+	s = cptr;
+	for (;;) {
+		switch (*s) {
+		case ' ':
+		case '\t':
+		case '\f':
+		case '\r':
+		case '\v':
+		case ',':
+		case ';':
+			++s;
+			break;
+		default:
+			cptr = s;
+			return (*s);
+		}
+	}
+}
+
+
+
 
 void get_types() {
 	FILE* ff;
@@ -69,7 +349,6 @@ void get_types() {
 	char first_open = 0;
 	cptr = NULL;
 	int xxx = 0;
-	get_line();
 NextLine:;
 	i = 0;
 
@@ -78,7 +357,6 @@ NextLine:;
 		line = NULL;
 		saw_eoff = 1;
 		lineno = 0;
-		if (cptr) FREE(cptr);
 		cptr = NULL;
 		return;
 	}
@@ -98,44 +376,8 @@ NextLine:;
 		}
 	}
 	line[i + 1] = 0;
-
+	cptr = line;
 	if (strncmp(&line[0], "%type ", 6) == 0) {
-
-
-		/*register bucket* bp = 0;
-		char* tag = 0;
-		for (int i = 0; i < 7; i++)
-		{
-			c = getc(ff);
-		}
-		if (c == '<') {
-			tag = get_tag();
-			c = getc(ff);
-		}
-		if (c == EOF) unexpected_EOF();
-
-		for (;;) {
-			c = getc(ff);
-			if (isalpha(c) || c == '_' || c == '.' || c == '$') {
-				bp = get_name();
-				if (getc(ff) == '(')
-					declare_argtypes(bp);
-				else
-					bp->args = 0;
-			}
-			else if (c == '\'' || c == '"') {
-				bp = get_literal();
-				bp->args = 0;
-			}
-			else
-				return;
-
-			if (tag) {
-				if (bp->tag && tag != bp->tag)
-					retyped_warning(bp->name);
-				bp->tag = tag;
-			}
-		}*/
 
 
 		FILE* ffile;
@@ -157,9 +399,8 @@ NextLine:;
 		}
 
 		cptr += 6;
-		declare_types();
+		declare_types_types();
 	}
-	get_line();
 	goto NextLine;
 }
 
@@ -790,28 +1031,7 @@ int get_number()
 //  
 // b: A {$$=$1;}
 // 
-static char *cache_tag(char *tag, int len)
-{
-int	i;
-char	*s;
 
-    for (i = 0; i < ntags; ++i) {
-	if (strncmp(tag, tag_table[i], len) == 0 &&  
-	    // VM: this is bug fix proposed by Matthias Meixner
-	    tag_table[i][len]==0)
-	    return (tag_table[i]); }
-    if (ntags >= tagmax) {
-	tagmax += 16;
-	tag_table = tag_table ? RENEW(tag_table, tagmax, char *)
-			      : NEW2(tagmax, char *);
-	if (tag_table == 0) no_space(); }
-    s = MALLOC(len + 1);
-    if (s == 0) no_space();
-    strncpy(s, tag, len);
-    s[len] = 0;
-    tag_table[ntags++] = s;
-    return s;
-}
 
 char *get_tag()
 {
