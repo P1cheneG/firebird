@@ -47,6 +47,10 @@ char *name_pool;
 char line_format[] = "#line %d \"%s\"\n";
 
 char types = 0;
+char first_rule = 1;
+
+char return_example[] = "return ";
+char check_line[8];
 
 int cachec(int c)
 {
@@ -263,13 +267,14 @@ int nextc()
 	case '\n':
 	    if ((s = get_line()) == 0) return EOF;
 	    break;
+	case ';':
+		first_rule = 1;
 	case ' ':
 	case '\t':
 	case '\f':
 	case '\r':
 	case '\v':
 	case ',':
-	case ';':
 	    ++s;
 	    break;
 	case '\\':
@@ -1350,11 +1355,20 @@ void add_symbol()
 	if (args == 0) no_space();
 	c = nextc(); }
     if (c == ':') {
-	end_rule();
-	start_rule(bp, s_lineno);
-	parse_arginfo(bp, args, argslen);
-	++cptr;
-	return; }
+		if (first_rule)
+		{
+			first_rule = 0;
+			end_rule();
+			start_rule(bp, s_lineno);
+			parse_arginfo(bp, args, argslen);
+			++cptr;
+			return;
+		}
+		else
+		{
+			syntax_error(lineno, line, cptr);
+		}
+	}
 
     if (last_was_action)
 	insert_empty_rule();
@@ -1400,6 +1414,9 @@ void copy_action()
     char *a_cptr = a_line + (cptr - line);
     Yshort *offsets=0, maxoffset;
     bucket **rhs;
+
+	char check_return = 0;
+	int check_len;
 
     if (last_was_action)
 	insert_empty_rule();
@@ -1519,8 +1536,28 @@ loop:
 		error(lineno, 0, 0, "untyped argument $%s", arg);
 	    goto loop; } }
     if (isalpha(c) || c == '_' || c == '$') {
+		if (c == 'r')
+		{
+			check_len = 0;
+			check_return = 1;
+		}
 	do {
 	    putc(c, f);
+		if (check_return)
+		{
+			if (check_len < 6) check_line[check_len++] = c;
+			if (check_len == 6)
+			{
+				check_line[6] = cptr[1];
+				check_line[7] = '\0';
+				if (strcmp(return_example, check_line) == 0)
+				{
+					no_grammar();
+				}
+				check_len++;
+				check_return = 0;
+			}
+		}
 	    c = *++cptr;
 	} while (isalnum(c) || c == '_' || c == '$');
 	goto loop; }

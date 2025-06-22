@@ -866,7 +866,7 @@ using namespace Firebird;
 	Jrd::SessionResetNode* sessionResetNode;
 }
 
-// %include types.y
+
 
 %%
 
@@ -1112,6 +1112,7 @@ execute_privilege($privilegeArray)
 %type usage_privilege(<privilegeArray>)
 usage_privilege($privilegeArray)
 	: USAGE							{ $privilegeArray->add(PrivilegeClause('G', NULL)); }
+	;
 
 %type privilege(<privilegeArray>)
 privilege($privilegeArray)
@@ -1938,6 +1939,7 @@ step_option($seqNode)
 by_noise
 	: // nothing
 	| BY
+	;
 
 %type <createAlterSequenceNode> replace_sequence_clause
 replace_sequence_clause
@@ -1987,6 +1989,7 @@ alter_sequence_clause
 				yyerrorIncompleteCmd(YYPOSNARG(3));
 			$$ = $2;
 		}
+	;
 
 %type alter_sequence_options(<createAlterSequenceNode>)
 alter_sequence_options($seqNode)
@@ -2008,6 +2011,7 @@ restart_option($seqNode)
 			setClause($seqNode->restartSpecified, "RESTART", true);
 			setClause($seqNode->value, "RESTART WITH", $2);
 		}
+	;
 
 %type <nullableInt64Val> with_opt
 with_opt
@@ -2082,10 +2086,12 @@ opt_system_privileges($createAlterRole)
 %type set_system_privileges(<createAlterRoleNode>)
 set_system_privileges($createAlterRole)
 	: SET SYSTEM PRIVILEGES TO system_privileges_list($createAlterRole)
+	;
 
 %type drop_system_privileges(<createAlterRoleNode>)
 drop_system_privileges($createAlterRole)
 	: DROP SYSTEM PRIVILEGES { $createAlterRole->sysPrivDrop = true; }
+	;
 
 %type system_privileges_list(<createAlterRoleNode>)
 system_privileges_list($createAlterRole)
@@ -7423,6 +7429,7 @@ comparison_operator
 	| NOT_GTR	{ $$ = blr_leq; }
 	| NOT_LSS	{ $$ = blr_geq; }
 	| NEQ		{ $$ = blr_neq; }
+	;
 
 // quantified comparisons
 
@@ -7573,6 +7580,7 @@ session_reset_predicate
 					newNode<InternalInfoNode>(MAKE_const_slong(INFO_TYPE_SESSION_RESETTING)),
 					MAKE_const_slong(1));
 		}
+	;
 
 %type <boolExprNode> null_predicate
 null_predicate
@@ -9181,6 +9189,7 @@ simple_when_clause($conditions, $values)
 else_case_result_opt
 	: /* nothing */		{ $$ = NULL; }
 	| ELSE case_result	{ $$ = $2; }
+	;
 
 %type <valueExprNode> searched_case
 searched_case
