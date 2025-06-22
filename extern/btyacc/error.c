@@ -221,3 +221,7 @@ void undefined_goal(char *s) {
 void undefined_symbol_warning(char *s) {
   fprintf(stderr, "warning - the symbol %s is undefined\n", s);
 }
+
+void return_err() {
+	error(lineno, 0, 0, "return operator found");
+}

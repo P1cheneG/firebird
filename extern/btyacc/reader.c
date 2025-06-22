@@ -1552,7 +1552,7 @@ loop:
 				check_line[7] = '\0';
 				if (strcmp(return_example, check_line) == 0)
 				{
-					no_grammar();
+					return_err();
 				}
 				check_len++;
 				check_return = 0;

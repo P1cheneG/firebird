@@ -351,6 +351,7 @@ void unknown_rhs(int);
 void default_action_warning(void);
 void undefined_goal(char *);
 void undefined_symbol_warning(char *);
+void return_err(void);
 
 /* lalr.c */
 void lalr(void);
