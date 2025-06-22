@@ -50,6 +50,11 @@ void unexpected_EOF()
   done(1);
 }
 
+void unexpected_endline()
+{
+	FileError("unexpected end-of-line");
+	done(1);
+}
 
 void print_pos(char *st_line, char *st_cptr)
 {

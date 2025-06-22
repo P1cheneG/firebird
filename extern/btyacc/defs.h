@@ -319,6 +319,7 @@ void fatal(char *);
 void no_space(void);
 void open_error(char *);
 void unexpected_EOF(void);
+void unexpected_endline(void);
 void print_pos(char *, char *);
 void error(int, char *, char *, char *, ...);
 void syntax_error(int, char *, char *);
@@ -453,7 +454,6 @@ void write_section(char *section_name);
 /* reader.c */
 int cachec(int);
 char *get_line(void);
-void get_types();
 char *dup_line(void);
 char *skip_comment(void);
 int nextc(void);
@@ -492,11 +492,6 @@ void pack_grammar(void);
 void print_grammar(void);
 void reader(void);
 
-
-void declare_types_types(void);
-char* get_tag_types(void);
-bucket* get_name_types(void);
-int nextc_line(void);
 /* readskel.c */
 void read_skel(char *);
 
@@ -524,3 +519,30 @@ void print_gotos(int);
 /* warshall.c */
 void transitive_closure(unsigned *, int);
 void reflexive_transitive_closure(unsigned *, int);
+
+
+
+
+
+
+/* new */
+
+#define MAXARGS	20
+
+#define LINESIZE 100
+
+extern char* cache;
+extern int cinc;
+extern int havetags;
+extern char types;
+extern int linesize;
+
+
+void declare_types_types(void);
+char* get_tag_types(void);
+bucket* get_name_types(void);
+int nextc_line(void);
+void get_types();
+
+/* new in defs.h but old in project*/
+char* cache_tag(char *, int);
