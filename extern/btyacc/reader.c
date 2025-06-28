@@ -46,11 +46,11 @@ char *name_pool;
 
 char line_format[] = "#line %d \"%s\"\n";
 
-char types = 0;
-char first_rule = 1;
+char types = 0;															// <- modifed
+char first_rule = 1;													// <- modifed
 
-char return_example[] = "return ";
-char check_line[8];
+char return_example[] = "return ";										// <- modifed
+char check_line[8];														// <- modifed
 
 int cachec(int c)
 {
@@ -214,7 +214,6 @@ char *get_line() {
     goto NextLine;
   }
 
-
   if(Eflag) {
     printf("YPP: %s", line);
   }
@@ -267,7 +266,7 @@ int nextc()
 	case '\n':
 	    if ((s = get_line()) == 0) return EOF;
 	    break;
-	case ';':
+	case ';':										// <- modifed
 		first_rule = 1;								// reset first_rule if rule finished
 	case ' ':
 	case '\t':
@@ -723,12 +722,12 @@ int get_number()
 // 
 
 
-char* get_tag()
+char *get_tag()
 {
 	register int c;
 	int t_lineno = lineno;
-	char* t_line = dup_line();
-	char* t_cptr = t_line + (cptr - line);
+	char *t_line = dup_line();
+	char *t_cptr = t_line + (cptr - line);
 
 	++cptr;
 	if (types)											// <-modifed
@@ -824,7 +823,7 @@ void declare_tokens(int assoc)
 
 static void declare_argtypes(bucket* bp)
 {
-	char* tags[MAXARGS];
+	char *tags[MAXARGS];
 	int	args = 0, c;
 
 	if (bp->args >= 0) retyped_warning(bp->name);

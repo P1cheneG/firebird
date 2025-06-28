@@ -50,7 +50,7 @@ void unexpected_EOF()
   done(1);
 }
 
-void unexpected_endline()
+void unexpected_endline()												// <- modifed
 {
 	FileError("unexpected end-of-line");
 	done(1);
@@ -222,6 +222,6 @@ void undefined_symbol_warning(char *s) {
   fprintf(stderr, "warning - the symbol %s is undefined\n", s);
 }
 
-void return_err() {
+void return_err() {																	// <- modifed
 	error(lineno, 0, 0, "return operator found");
 }
