@@ -319,7 +319,7 @@ void fatal(char *);
 void no_space(void);
 void open_error(char *);
 void unexpected_EOF(void);
-void unexpected_endline(void);
+void unexpected_endline(void);						// <- new
 void print_pos(char *, char *);
 void error(int, char *, char *, char *, ...);
 void syntax_error(int, char *, char *);
@@ -351,7 +351,7 @@ void unknown_rhs(int);
 void default_action_warning(void);
 void undefined_goal(char *);
 void undefined_symbol_warning(char *);
-void return_err(void);
+void return_err(void);								// <- new
 
 /* lalr.c */
 void lalr(void);
@@ -524,9 +524,16 @@ void reflexive_transitive_closure(unsigned *, int);
 
 
 
-
-
 /* new */
+
+extern char types;
+extern int linesize;
+
+
+int next_char(void);
+void read_types(void);
+
+/* new in defs.h but old in project*/
 
 #define MAXARGS	20
 
@@ -535,15 +542,5 @@ void reflexive_transitive_closure(unsigned *, int);
 extern char* cache;
 extern int cinc;
 extern int havetags;
-extern char types;
-extern int linesize;
 
-
-void declare_types_types(void);
-char* get_tag_types(void);
-bucket* get_name_types(void);
-int nextc_line(void);
-void get_types();
-
-/* new in defs.h but old in project*/
 char* cache_tag(char *, int);

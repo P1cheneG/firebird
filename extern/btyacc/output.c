@@ -830,7 +830,7 @@ void output_defines()
 	s = symbol_name[i];
 	if (is_C_identifier(s))
 	{
-	    fprintf(dc_file, "#define TOK_");
+	    fprintf(dc_file, "#define TOK_");					// <- modifed
 	    c = *s;
 	    if (c == '"')
 	    {

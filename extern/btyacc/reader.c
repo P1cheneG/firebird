@@ -268,7 +268,7 @@ int nextc()
 	    if ((s = get_line()) == 0) return EOF;
 	    break;
 	case ';':
-		first_rule = 1;
+		first_rule = 1;								// reset first_rule if rule finished
 	case ' ':
 	case '\t':
 	case '\f':
@@ -544,7 +544,7 @@ bucket *get_literal()
 	    c = *cptr++;
 	    switch (c) {
 	    case '\n':
-			if (types)
+			if (types)																// <- modifed start
 			{
 				unterminated_string(s_lineno, s_line, s_cptr);
 			}
@@ -552,7 +552,7 @@ bucket *get_literal()
 			{ 
 				get_line();
 				if (line == 0) unterminated_string(s_lineno, s_line, s_cptr);
-			}
+			}																		// <- modifed end
 		continue;
 	    case '0': case '1': case '2': case '3':
 	    case '4': case '5': case '6': case '7':
@@ -723,31 +723,45 @@ int get_number()
 // 
 
 
-char *get_tag()
+char* get_tag()
 {
-    register int c;
-    int t_lineno = lineno;
-    char *t_line = dup_line();
-    char *t_cptr = t_line + (cptr - line);
+	register int c;
+	int t_lineno = lineno;
+	char* t_line = dup_line();
+	char* t_cptr = t_line + (cptr - line);
 
-    ++cptr;
-    c = nextc();
-    if (c == EOF) unexpected_EOF();
-    if (!isalpha(c) && c != '_' && c != '$')
-	illegal_tag(t_lineno, t_line, t_cptr);
+	++cptr;
+	if (types)											// <-modifed
+	{
+		c = next_char();								// <-modifed
+		if (c == '\n') unexpected_endline();			// <-modifed
+	}
+	else {
+		c = nextc();
+		if (c == EOF) unexpected_EOF();
+	}
+	if (!isalpha(c) && c != '_' && c != '$')
+		illegal_tag(t_lineno, t_line, t_cptr);
 
-    cinc = 0;
-    do { cachec(c); c = *++cptr; } while (IS_IDENT(c));
+	cinc = 0;
+	do { cachec(c); c = *++cptr; } while (IS_IDENT(c));
 
-    c = nextc();
-    if (c == EOF) unexpected_EOF();
-    if (c != '>')
-	illegal_tag(t_lineno, t_line, t_cptr);
-    ++cptr;
+	if (types)											// <-modifed
+	{
+		c = next_char();								// <-modifed
+		if (c == '\n') unexpected_endline();			// <-modifed
+	}
+	else {
+		c = nextc();
+		if (c == EOF) unexpected_EOF();
+	}
+	if (c != '>')
+		illegal_tag(t_lineno, t_line, t_cptr);
+	++cptr;
 
-    FREE(t_line);
-    havetags = 1;
-    return cache_tag(cache, cinc);
+	FREE(t_line);
+	havetags = 1;
+	return cache_tag(cache, cinc);
 }
 
 static char *scan_id(void)
@@ -808,60 +822,70 @@ void declare_tokens(int assoc)
 	    if (c == EOF) unexpected_EOF(); } }
 }
 
-static void declare_argtypes(bucket *bp)
+static void declare_argtypes(bucket* bp)
 {
-char	*tags[MAXARGS];
-int	args = 0, c;
+	char* tags[MAXARGS];
+	int	args = 0, c;
 
-    if (bp->args >= 0) retyped_warning(bp->name);
-    cptr++; /* skip open paren */
-    for (;;) {
-	c = nextc();
-	if (c == EOF) unexpected_EOF();
-	if (c != '<') syntax_error(lineno, line, cptr);
-	tags[args++] = get_tag();
-	c = nextc();
-	if (c == ')') break;
-	if (c == EOF) unexpected_EOF(); }
-    cptr++; /* skip close paren */
-    bp->args = args;
-    if (!(bp->argnames = NEW2(args, char *))) no_space();
-    if (!(bp->argtags = NEW2(args, char *))) no_space();
-    while (--args >= 0) {
-	bp->argtags[args] = tags[args];
-	bp->argnames[args] = 0; }
+	if (bp->args >= 0) retyped_warning(bp->name);
+	cptr++; /* skip open paren */
+	for (;;) {
+		c = types ? next_char() : nextc();							// <- modifed
+		if (c == EOF) unexpected_EOF();								
+		if (c == '\n' && types) unexpected_endline();				// <- modifed
+		if (c != '<') syntax_error(lineno, line, cptr);
+		tags[args++] = get_tag();
+		c = types ? next_char() : nextc();							// <- modifed
+		if (c == ')') break;
+		if (c == EOF) unexpected_EOF();
+		if (c == '\n' && types) unexpected_endline();				// <- modifed
+	}
+	cptr++; /* skip close paren */
+	bp->args = args;
+	if (!(bp->argnames = NEW2(args, char*))) no_space();
+	if (!(bp->argtags = NEW2(args, char*))) no_space();
+	while (--args >= 0) {
+		bp->argtags[args] = tags[args];
+		bp->argnames[args] = 0;
+	}
 }
 
 void declare_types()
 {
-    register int c;
-    register bucket *bp=0;
-    char *tag=0;
+	register int c;
+	register bucket* bp = 0;
+	char* tag = 0;
 
-    c = nextc();
-    if (c == '<') {
-	tag = get_tag();
-	c = nextc(); }
-    if (c == EOF) unexpected_EOF();
+	c = types ? next_char() : nextc();								// <- mofifed
+	if (c == '<') {
+		tag = get_tag();
+		c = types ? next_char() : nextc();							// <- mofifed
+	}
+	if (c == EOF) unexpected_EOF();
+	if (c == '\n' && types) unexpected_endline();					// <- modifed
 
-    for (;;) {
-	c = nextc();
-	if (isalpha(c) || c == '_' || c == '.' || c == '$') {
-	    bp = get_name();
-	    if (nextc() == '(')
-		declare_argtypes(bp);
-	    else
-		bp->args = 0; }
-	else if (c == '\'' || c == '"') {
-	    bp = get_literal();
-	    bp->args = 0; }
-	else
-	    return;
+	for (;;) {
+		c = types ? next_char() : nextc();							// <- mofifed
+		if (isalpha(c) || c == '_' || c == '.' || c == '$') {
+			bp = get_name();
+			if ((types ? next_char() : nextc()) == '(')				// <- modifed
+				declare_argtypes(bp);
+			else
+				bp->args = 0;
+		}
+		else if (c == '\'' || c == '"') {
+			bp = get_literal();
+			bp->args = 0;
+		}
+		else
+			return;
 
-	if (tag) {
-	    if (bp->tag && tag != bp->tag)
-		retyped_warning(bp->name);
-	    bp->tag = tag; } }
+		if (tag) {
+			if (bp->tag && tag != bp->tag)
+				retyped_warning(bp->name);
+			bp->tag = tag;
+		}
+	}
 }
 
 void declare_start()
@@ -1355,8 +1379,9 @@ void add_symbol()
 	if (args == 0) no_space();
 	c = nextc(); }
     if (c == ':') {
-		if (first_rule)
-		{
+		// checking that ':' occurs only 1 time in the rule
+		if (first_rule)												// <- modifed start
+		{									
 			first_rule = 0;
 			end_rule();
 			start_rule(bp, s_lineno);
@@ -1367,7 +1392,7 @@ void add_symbol()
 		else
 		{
 			syntax_error(lineno, line, cptr);
-		}
+		}															// <- modifed end
 	}
 
     if (last_was_action)
@@ -1415,8 +1440,8 @@ void copy_action()
     Yshort *offsets=0, maxoffset;
     bucket **rhs;
 
-	char check_return = 0;
-	int check_len;
+	char check_return = 0;																		// <- modifed
+	int check_len;																				// <- modifed
 
     if (last_was_action)
 	insert_empty_rule();
@@ -1535,15 +1560,22 @@ loop:
 	    else if (havetags)
 		error(lineno, 0, 0, "untyped argument $%s", arg);
 	    goto loop; } }
-    if (isalpha(c) || c == '_' || c == '$') {
-		if (c == 'r')
+    if (isalpha(c) || c == '_' || c == '$') {								
+		if (c == 'r')																			//	<- modifed
 		{
 			check_len = 0;
 			check_return = 1;
 		}
 	do {
 	    putc(c, f);
-		if (check_return)
+		/*
+		Checking that there is no "return" operator in the text of the rule. 
+		If a word starts with 'r', the next 7 characters are written to a special array,
+		if the array is equal to the string "return ",
+		that is, the "return" operator is found in the code,
+		the program will warn of an error.
+		*/
+		if (check_return)																		// <- modifed start
 		{
 			if (check_len < 6) check_line[check_len++] = c;
 			if (check_len == 6)
@@ -1557,7 +1589,7 @@ loop:
 				check_len++;
 				check_return = 0;
 			}
-		}
+		}																						// <- modifed end
 	    c = *++cptr;
 	} while (isalnum(c) || c == '_' || c == '$');
 	goto loop; }
@@ -1691,7 +1723,8 @@ void read_grammar()
     for (;;) {
 	c = nextc();
 	if (c == EOF) break;
-	if (strncmp(&line[0], "%type ", 6) == 0) {
+	// skipping lines starting with "%type " in the grammar part of the input_file
+	if (strncmp(&line[0], "%type ", 6) == 0) {											// <- modifed
 		get_line();
 		continue;
 	}
@@ -1948,7 +1981,7 @@ extern int read_errs;
 void reader() {
   write_section("banner");
   create_symbol_table();
-  get_types();
+  read_types();																				// <- modifed
   read_declarations();
   read_grammar();
   if(read_errs) done(1);
