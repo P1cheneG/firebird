@@ -19,30 +19,6 @@ action *get_shifts(int stateno);
 action *add_reductions(int stateno, action *actions);
 action *add_reduce(action *actions, int ruleno, int symbol);
 
-char first_open_conflict_file = 0;
-
-int conflict_count = 0;
-
-void write_conflicts(char *symbol, int ruleno)
-{
-	FILE* ffile;
-	if (!first_open_conflict_file)
-	{
-		ffile = fopen("conflicts_list.txt", "w");
-		first_open_conflict_file = 1;
-	}
-	else
-	{
-		ffile = fopen("conflicts_list.txt", "a");
-	}
-	if (ffile == NULL) {
-		error(lineno, 0, 0, "Cannot open conflicts_list file for writing %s", "conflicts_list.txt");
-	}
-	else {
-		fprintf(ffile, "%d:%s conflict on line %d\n", ++conflict_count, symbol, rule_line[ruleno]);
-		fclose(ffile);
-	}
-}
 
 void make_parser()
 {
@@ -293,7 +269,7 @@ int sole_reduction(int stateno)
     register action *p;
 
     count = 0;
-    ruleno = 0; 
+    ruleno = 0;
     for (p = parser[stateno]; p; p = p->next)
     {
 	if (p->action_code == SHIFT && p->suppressed <= 1)
@@ -322,7 +298,7 @@ void defreds()
     for (i = 0; i < nstates; i++)
 	defred[i] = sole_reduction(i);
 }
- 
+
 void free_action_row(action *p)
 {
   register action *q;
