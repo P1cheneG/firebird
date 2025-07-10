@@ -78,6 +78,8 @@ char  *rassoc;
 Yshort **derives;
 char *nullable;
 
+int* rule_line;			// <- new
+
 
 void done(int k)
 {

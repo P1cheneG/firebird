@@ -516,3 +516,23 @@ void print_gotos(int);
 /* warshall.c */
 void transitive_closure(unsigned *, int);
 void reflexive_transitive_closure(unsigned *, int);
+
+
+//! *****  Added functions and variables ******
+
+extern int* rule_line;
+void unexpected_endline(void);
+void return_err(void);
+
+
+extern char types;
+extern int linesize;
+
+
+extern char first_open_conflict_file;
+extern int conflict_count;
+
+
+int next_char(void);
+void read_types(void);
+void write_conflicts(char* symbol, int ruleno);

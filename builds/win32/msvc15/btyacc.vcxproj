@@ -185,6 +185,7 @@
     <ClCompile Include="..\..\..\extern\btyacc\readskel.c" />
     <ClCompile Include="..\..\..\extern\btyacc\skeleton.c" />
     <ClCompile Include="..\..\..\extern\btyacc\symtab.c" />
+    <ClCompile Include="..\..\..\extern\btyacc\types_fix.c" />
     <ClCompile Include="..\..\..\extern\btyacc\verbose.c" />
     <ClCompile Include="..\..\..\extern\btyacc\warshall.c" />
   </ItemGroup>
