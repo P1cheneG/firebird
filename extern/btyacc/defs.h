@@ -529,10 +529,6 @@ extern char types;
 extern int linesize;
 
 
-extern char first_open_conflict_file;
-extern int conflict_count;
-
-
 int next_char(void);
 void read_types(void);
 void write_conflicts(char* symbol, int ruleno);

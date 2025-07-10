@@ -29,6 +29,10 @@ int next_char()
 }
 
 
+
+char first_open_conflict_file = 0;		// <- new
+int conflict_count = 0;					// <- new
+
 void write_conflicts(char* symbol, int ruleno)
 {
 	FILE* ffile;

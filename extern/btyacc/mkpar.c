@@ -11,9 +11,6 @@ Yshort *rules_used;
 Yshort nunused;
 Yshort final_state;
 
-char first_open_conflict_file = 0;		// <- new
-int conflict_count = 0;					// <- new
-
 static int SRcount;
 static int RRcount;
 
