@@ -525,10 +525,6 @@ void unexpected_endline(void);
 void return_err(void);
 
 
-extern char types;
-extern int linesize;
-
-
 int next_char(void);
 void read_types(void);
 void write_conflicts(char* symbol, int ruleno);
