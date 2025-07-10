@@ -75,9 +75,10 @@ Yshort *rlhs;
 Yshort *rrhs;
 Yshort *rprec;
 char  *rassoc;
-int *rule_line;
 Yshort **derives;
 char *nullable;
+
+int* rule_line;			// <- new
 
 
 void done(int k)

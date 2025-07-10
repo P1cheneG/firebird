@@ -29,54 +29,27 @@ int next_char()
 }
 
 
-// read_types() a function that reads the entire grammar file and search all types declarations
 
-void read_types(){
-	FILE* input_file;
-	int c;
-	int i;
-	char saw_eoff = 0;
-	input_file = fopen(input_file_name, "r");
-	types = 1;
-NextLine:;
-	i = 0;
-	// checking the end of the file
-	if (saw_eoff || (c = getc(input_file)) == EOF) {
-		if (line) FREE(line);
-		line = NULL;
-		saw_eoff = 1;
-		lineno = 0;
-		cptr = NULL;
-		types = 0;
-		return;
-	}
+char first_open_conflict_file = 0;		// <- new
+int conflict_count = 0;					// <- new
 
-	// managing memory allocation for the line buffer
-	if (line == 0 || linesize != (LINESIZE + 1)) {
-		if (line) FREE(line);
-		linesize = LINESIZE + 1;
-		if (!(line = MALLOC(linesize))) no_space();
+void write_conflicts(char* symbol, int ruleno)
+{
+	FILE* ffile;
+	if (!first_open_conflict_file)
+	{
+		ffile = fopen("conflicts_list.txt", "w");
+		first_open_conflict_file = 1;
 	}
-	++lineno;
-
-	// reading a line
-	while ((line[i] = c) != '\n') {
-		if (++i + 1 >= linesize)
-			if (!(line = REALLOC(line, linesize += LINESIZE)))
-				no_space();
-		if ((c = getc(input_file)) == EOF) {
-			c = '\n';
-			saw_eoff = 1;
-		}
+	else
+	{
+		ffile = fopen("conflicts_list.txt", "a");
 	}
-	line[i + 1] = 0;
-	cptr = line;
-	// check if line starts with "%type "
-	if (strncmp(&line[0], "%type ", 6) == 0) {
-		// skip substring "%type "
-		cptr += 6;
-		// write new type to the program
-		declare_types();
+	if (ffile == NULL) {
+		error(lineno, 0, 0, "Cannot open conflicts_list file for writing %s", "conflicts_list.txt");
 	}
-	goto NextLine;
+	else {
+		fprintf(ffile, "%d:%s conflict on line %d\n", ++conflict_count, symbol, rule_line[ruleno]);
+		fclose(ffile);
+	}
 }

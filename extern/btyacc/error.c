@@ -50,11 +50,6 @@ void unexpected_EOF()
   done(1);
 }
 
-void unexpected_endline()												// <- modifed
-{
-	FileError("unexpected end-of-line");
-	done(1);
-}
 
 void print_pos(char *st_line, char *st_cptr)
 {
@@ -222,6 +217,15 @@ void undefined_symbol_warning(char *s) {
   fprintf(stderr, "warning - the symbol %s is undefined\n", s);
 }
 
-void return_err() {																	// <- modifed
+
+//! *****  Added functions ******
+
+void unexpected_endline()												
+{
+	FileError("unexpected end-of-line");
+	done(1);
+}
+
+void return_err() {																	
 	error(lineno, 0, 0, "return operator found");
 }

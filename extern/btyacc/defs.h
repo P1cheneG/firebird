@@ -265,8 +265,6 @@ extern Yshort *rrhs;
 extern Yshort *rprec;
 extern char  *rassoc;
 
-extern int *rule_line;
-
 extern Yshort **derives;
 extern char *nullable;
 
@@ -319,7 +317,6 @@ void fatal(char *);
 void no_space(void);
 void open_error(char *);
 void unexpected_EOF(void);
-void unexpected_endline(void);						// <- new
 void print_pos(char *, char *);
 void error(int, char *, char *, char *, ...);
 void syntax_error(int, char *, char *);
@@ -351,7 +348,6 @@ void unknown_rhs(int);
 void default_action_warning(void);
 void undefined_goal(char *);
 void undefined_symbol_warning(char *);
-void return_err(void);								// <- new
 
 /* lalr.c */
 void lalr(void);
@@ -522,21 +518,13 @@ void transitive_closure(unsigned *, int);
 void reflexive_transitive_closure(unsigned *, int);
 
 
+//! *****  Added functions and variables ******
 
+extern int* rule_line;
+void unexpected_endline(void);
+void return_err(void);
 
-/* new */
 
 int next_char(void);
 void read_types(void);
-
-/* new in defs.h but old in project*/
-
-#define MAXARGS	20
-
-#define LINESIZE 100
-
-extern char* cache;
-extern int cinc;
-extern int havetags;
-
-char* cache_tag(char *, int);
+void write_conflicts(char* symbol, int ruleno);
