@@ -526,10 +526,6 @@ void reflexive_transitive_closure(unsigned *, int);
 
 /* new */
 
-extern char types;
-extern int linesize;
-
-
 int next_char(void);
 void read_types(void);
 
