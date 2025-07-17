@@ -220,12 +220,16 @@ void undefined_symbol_warning(char *s) {
 
 //! *****  Added functions ******
 
-void unexpected_endline()												
-{
+void unexpected_endline() {
 	FileError("unexpected end-of-line");
 	done(1);
 }
 
 void return_err() {																	
 	error(lineno, 0, 0, "return operator found");
+}
+
+void double_name_err() {
+	error(lineno, 0, 0, "repeating the type name");
+	exit(1);
 }

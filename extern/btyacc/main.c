@@ -44,6 +44,8 @@ char *output_file_name;
 char *text_file_name;
 char *union_file_name;
 char *verbose_file_name;
+char *c_output_file_name;
+char *h_output_file_name;
 
 FILE *action_file;	/*  a temp file, used to save actions associated    */
 			/*  with rules until the parser is written	    */
@@ -243,6 +245,24 @@ void getargs(int argc, char **argv)
 				usage();
 			continue;
 
+		case 'c':
+			if (*++s)
+				c_output_file_name = s;
+			else if (++i < argc)
+				c_output_file_name = argv[i];
+			else
+				usage();
+			continue;
+
+		case 'h':
+			if (*++s)
+				h_output_file_name = s;
+			else if (++i < argc)
+				h_output_file_name = argv[i];
+			else
+				usage();
+			continue;
+
 		default:
 			usage();
 		}
@@ -356,13 +376,23 @@ void create_file_names()
 		exit(1);
 	}
 
-	len = strlen(file_prefix);
+	if (c_output_file_name) {
+		len = strlen(c_output_file_name);
 
-	output_file_name = MALLOC(len + 7);
-	if (output_file_name == 0)
-		no_space();
-	strcpy(output_file_name, file_prefix);
-	strcpy(output_file_name + len, OUTPUT_SUFFIX);
+		output_file_name = MALLOC(len + 1);
+		if (output_file_name == 0)
+			no_space();
+		strcpy(output_file_name, c_output_file_name);
+	}
+	else {
+		len = strlen(file_prefix);
+
+		output_file_name = MALLOC(len + 7);
+		if (output_file_name == 0)
+			no_space();
+		strcpy(output_file_name, file_prefix);
+		strcpy(output_file_name + len, OUTPUT_SUFFIX);
+	}
 
 	if (rflag)
 	{
@@ -382,6 +412,24 @@ void create_file_names()
 			no_space();
 		strcpy(defines_file_name, file_prefix);
 		strcpy(defines_file_name + len, DEFINES_SUFFIX);
+
+		if (h_output_file_name) {
+			len = strlen(h_output_file_name);
+
+			defines_file_name = MALLOC(len + 1);
+			if (defines_file_name == 0)
+				no_space();
+			strcpy(defines_file_name, h_output_file_name);
+		}
+		else {
+			len = strlen(file_prefix);
+
+			defines_file_name = MALLOC(len + 7);
+			if (defines_file_name == 0)
+				no_space();
+			strcpy(defines_file_name, file_prefix);
+			strcpy(defines_file_name + len, DEFINES_SUFFIX);
+		}
 	}
 
 	if (vflag)

@@ -528,3 +528,5 @@ void return_err(void);
 int next_char(void);
 void read_types(void);
 void write_conflicts(char* symbol, int ruleno);
+extern char types;
+void double_name_err(void);

@@ -1,0 +1,3 @@
+C:\Users\P1cheneG\Documents\firebird\firebird\temp\x64\Debug\btyacc\btyacc.exe: 3 rules never reduced
+C:\Users\P1cheneG\Documents\firebird\firebird\temp\x64\Debug\btyacc\btyacc.exe: 118 shift/reduce conflicts, 22 reduce/reduce conflicts.
+YYTABLESIZE: 162462
