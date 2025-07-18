@@ -1,6 +1,5 @@
 #include "defs.h"
 
-// next_char() a function that skips spaces and delimiters in a string for read_types() function
 
 const char* MOD_file_name = NULL;
 int* rule_line;			// <- new
@@ -21,6 +20,8 @@ void MOD_set_file_name(const char* filename)
 
 	MOD_file_name = filename;
 }
+
+// next_char() a function that skips spaces and delimiters in a string for read_types() function
 
 int next_char()
 {
