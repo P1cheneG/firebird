@@ -679,7 +679,7 @@ void output_table()
 
     ++outline;
 
-    fprintf(stderr, "YYTABLESIZE: %d\n", high);
+    //fprintf(stderr, "YYTABLESIZE: %d\n", high);
     if(high >= MAXSHORT) {
       fprintf(stderr, "Table is longer than %d elements. It's not gonna fly.\n", MAXSHORT);
       exit(1);

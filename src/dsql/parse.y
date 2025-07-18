@@ -884,7 +884,6 @@ top
 		{ parsedStatement = $1; }
 	;
 
-
 %type <dsqlStatement> statement
 statement
 	: dml_statement

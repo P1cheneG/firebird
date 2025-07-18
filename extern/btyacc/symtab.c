@@ -64,14 +64,14 @@ bucket *lookup(char *name)
 
     while (bp)
     {
-	if (strcmp(name, bp->name) == 0) 
+	if (strcmp(name, bp->name) == 0)			// <- modifed start
 	{
 		if (types)
 		{
 			double_name_err();
 		}
 		return (bp);
-	}
+	}											// <- modifed end
 	bpp = &bp->link;
 	bp = *bpp;
     }

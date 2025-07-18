@@ -44,8 +44,8 @@ char *output_file_name;
 char *text_file_name;
 char *union_file_name;
 char *verbose_file_name;
-char *c_output_file_name;
-char *h_output_file_name;
+char *c_output_file_name;					// <- new
+char *h_output_file_name;					// <- new
 
 FILE *action_file;	/*  a temp file, used to save actions associated    */
 			/*  with rules until the parser is written	    */
@@ -245,7 +245,7 @@ void getargs(int argc, char **argv)
 				usage();
 			continue;
 
-		case 'c':
+		case 'c':								// <- modifed start
 			if (*++s)
 				c_output_file_name = s;
 			else if (++i < argc)
@@ -261,7 +261,7 @@ void getargs(int argc, char **argv)
 				h_output_file_name = argv[i];
 			else
 				usage();
-			continue;
+			continue;							// <- modifed end
 
 		default:
 			usage();
@@ -376,7 +376,7 @@ void create_file_names()
 		exit(1);
 	}
 
-	if (c_output_file_name) {
+	if (c_output_file_name) {										// <- modifed start
 		len = strlen(c_output_file_name);
 
 		output_file_name = MALLOC(len + 1);
@@ -392,7 +392,7 @@ void create_file_names()
 			no_space();
 		strcpy(output_file_name, file_prefix);
 		strcpy(output_file_name + len, OUTPUT_SUFFIX);
-	}
+	}																// <- modifed end
 
 	if (rflag)
 	{
@@ -407,13 +407,7 @@ void create_file_names()
 
 	if (dflag)
 	{
-		defines_file_name = MALLOC(len + 7);
-		if (defines_file_name == 0)
-			no_space();
-		strcpy(defines_file_name, file_prefix);
-		strcpy(defines_file_name + len, DEFINES_SUFFIX);
-
-		if (h_output_file_name) {
+		if (h_output_file_name) {								// <- modifed start
 			len = strlen(h_output_file_name);
 
 			defines_file_name = MALLOC(len + 1);
@@ -430,7 +424,7 @@ void create_file_names()
 			strcpy(defines_file_name, file_prefix);
 			strcpy(defines_file_name + len, DEFINES_SUFFIX);
 		}
-	}
+	}															// <- modifed end
 
 	if (vflag)
 	{
