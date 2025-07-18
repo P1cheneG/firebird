@@ -188,7 +188,8 @@ struct action
     struct action *next;
     Yshort symbol;
     Yshort number;
-    Yshort prec;
+	Yshort prec;
+	Yshort state;
     char   action_code;
     char   assoc;
     char   suppressed;
@@ -527,4 +528,6 @@ void return_err(void);
 
 int next_char(void);
 void read_types(void);
-void write_conflicts(char* symbol, int ruleno);
+void MOD_set_file_name(const char* filename);
+void MOD_write_conflicts(const action * firstRule, action * secondRule);
+void MOD_write_shifts(shifts * sp, action * pref);

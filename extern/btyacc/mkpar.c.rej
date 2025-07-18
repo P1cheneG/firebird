@@ -1,0 +1,8 @@
+diff a/extern/btyacc/mkpar.c b/extern/btyacc/mkpar.c	(rejected hunks)
+@@ -319,4 +347,4 @@ void free_parser()
+     free_action_row(parser[i]);
+ 
+   FREE(parser);
+-}
+\ No newline at end of file
++}

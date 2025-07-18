@@ -17,7 +17,7 @@ static int RRcount;
 action *parse_actions(int stateno);
 action *get_shifts(int stateno);
 action *add_reductions(int stateno, action *actions);
-action *add_reduce(action *actions, int ruleno, int symbol);
+action *add_reduce(action *actions, int ruleno, int symbol, int stateno);
 
 
 void make_parser()
@@ -67,6 +67,7 @@ action *get_shifts(int stateno)
 		temp->next = actions;
 		temp->symbol = symbol;
 		temp->number = k;
+		temp->state = stateno;
 		temp->prec = symbol_prec[symbol];
 		temp->action_code = SHIFT;
 		temp->assoc = symbol_assoc[symbol];
@@ -93,13 +94,13 @@ action *add_reductions(int stateno, action *actions)
 	for (j = ntokens - 1; j >= 0; j--)
 	{
 	    if (BIT(rowp, j))
-		actions = add_reduce(actions, ruleno, j);
+		actions = add_reduce(actions, ruleno, j, stateno);
 	}
     }
     return (actions);
 }
 
-action *add_reduce(action *actions, int ruleno, int symbol)
+action *add_reduce(action *actions, int ruleno, int symbol, int stateno)
 {
     register action *temp, *prev, *next;
 
@@ -124,6 +125,7 @@ action *add_reduce(action *actions, int ruleno, int symbol)
     temp->next = next;
     temp->symbol = symbol;
     temp->number = ruleno;
+	temp->state = stateno;
     temp->prec = rprec[ruleno];
     temp->action_code = REDUCE;
     temp->assoc = rassoc[ruleno];
@@ -194,58 +196,84 @@ void remove_conflicts()
     RRtotal = 0;
     SRconflicts = NEW2(nstates, Yshort);
     RRconflicts = NEW2(nstates, Yshort);
-    for (i = 0; i < nstates; i++) {
-	SRcount = 0;
-	RRcount = 0;
-	symbol = -1;
-	pref = 0;
-	for (p = parser[i]; p; p = p->next) {
-	    if (p->symbol != symbol) {
-		pref = p;
-		symbol = p->symbol; }
-	    else if (i == final_state && symbol == 0) {
-		SRcount++;
-		write_conflicts(symbol_name[pref->symbol], pref->number);		// <- new
-		p->suppressed = 1;
-		if (!pref->suppressed)
-		    pref->suppressed = 1; }
-	    else if (pref->action_code == SHIFT) {
-		if (pref->prec > 0 && p->prec > 0) {
-		    if (pref->prec < p->prec) {
-			pref->suppressed = 2;
-			pref = p; }
-		    else if (pref->prec > p->prec) {
-			p->suppressed = 2; }
-		    else if (pref->assoc == LEFT) {
-			pref->suppressed = 2;
-			pref = p; }
-		    else if (pref->assoc == RIGHT) {
-			p->suppressed = 2; }
-		    else {
-			pref->suppressed = 2;
-			p->suppressed = 2; } }
-		else {
+	for (i = 0; i < nstates; i++)
+	{
+		SRcount = 0;
+		RRcount = 0;
+		symbol = -1;
+		pref = 0;
+		for (p = parser[i]; p; p = p->next)
+		{
+			if (p->symbol != symbol)
+			{
+				pref = p;
+				symbol = p->symbol;
+			}
+			else if (i == final_state && symbol == 0)
+			{
+				SRcount++;
+				MOD_write_conflicts(pref, p);		// <- new
+				p->suppressed = 1;
+				if (!pref->suppressed)
+					pref->suppressed = 1;
+			}
+			else if (pref->action_code == SHIFT)
+			{
+				if (pref->prec > 0 && p->prec > 0)
+				{
+					if (pref->prec < p->prec)
+					{
+						pref->suppressed = 2;
+						pref = p;
+					}
+					else if (pref->prec > p->prec)
+					{
+						p->suppressed = 2;
+					}
+					else if (pref->assoc == LEFT)
+					{
+						pref->suppressed = 2;
+						pref = p;
+					}
+					else if (pref->assoc == RIGHT)
+					{
+						p->suppressed = 2;
+					}
+			else
+			{
+				pref->suppressed = 2;
+						p->suppressed = 2;
+			}
+		}
+		else
+		{
 		    SRcount++;
-			write_conflicts(symbol_name[pref->symbol], pref->number);		// <- new
+			MOD_write_conflicts(pref, p);		// <- new
 		    p->suppressed = 1;
 		    if (!pref->suppressed)
-			pref->suppressed = 1; } }
-	    else {
-		RRcount++;
-		write_conflicts(symbol_name[pref->symbol], pref->number);			// <- new
-		p->suppressed = 1;
-		if (!pref->suppressed)
-		    pref->suppressed = 1; } }
-	SRtotal += SRcount;
-	RRtotal += RRcount;
-	SRconflicts[i] = SRcount;
-	RRconflicts[i] = RRcount; }
+					pref->suppressed = 1;
+		}
+	}
+			else
+			{
+				RRcount++;
+				MOD_write_conflicts(pref, p);			// <- new
+				p->suppressed = 1;
+				if (!pref->suppressed)
+					pref->suppressed = 1;
+			}
+		}
+		SRtotal += SRcount;
+		RRtotal += RRcount;
+		SRconflicts[i] = SRcount;
+		RRconflicts[i] = RRcount;
+	}
 }
 
 
 void total_conflicts()
 {
-    fprintf(stderr, "%s: ", myname);
+	//fprintf(stderr, "%s: ", myname); // MODIFED
     if (SRtotal == 1)
 	fprintf(stderr, "1 shift/reduce conflict");
     else if (SRtotal > 1)
@@ -298,7 +326,7 @@ void defreds()
     for (i = 0; i < nstates; i++)
 	defred[i] = sole_reduction(i);
 }
- 
+
 void free_action_row(action *p)
 {
   register action *q;
