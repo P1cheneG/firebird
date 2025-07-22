@@ -1,0 +1,18 @@
+diff a/extern/btyacc/main.c b/extern/btyacc/main.c	(rejected hunks)
+@@ -78,7 +78,6 @@ char  *rassoc;
+ Yshort **derives;
+ char *nullable;
+ 
+-int* rule_line;			// <- new
+ 
+ 
+ void done(int k)
+@@ -153,6 +152,8 @@ void no_more_options(int i, int argc, char* argv[])
+ 			file_prefix = "y"; 
+ 		}
+ 	}
++
++	MOD_set_file_name(input_file_name);
+ }
+ 
+ 

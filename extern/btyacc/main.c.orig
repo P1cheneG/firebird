@@ -44,8 +44,6 @@ char *output_file_name;
 char *text_file_name;
 char *union_file_name;
 char *verbose_file_name;
-char *c_output_file_name;					// <- new
-char *h_output_file_name;					// <- new
 
 FILE *action_file;	/*  a temp file, used to save actions associated    */
 			/*  with rules until the parser is written	    */
@@ -80,7 +78,6 @@ char  *rassoc;
 Yshort **derives;
 char *nullable;
 
-int* rule_line;			// <- new
 
 
 void done(int k)
@@ -155,13 +152,15 @@ void no_more_options(int i, int argc, char* argv[])
 			file_prefix = "y"; 
 		}
 	}
+
+	MOD_set_file_name(input_file_name);
 }
 
 
 void getargs(int argc, char **argv)
 {
-	int i;
-	char *s;
+	register int i;
+	register char *s;
 
 	if (argc > 0) 
 		myname = argv[0];
@@ -246,8 +245,7 @@ void getargs(int argc, char **argv)
 			continue;
 
 		default:
-			MOD_check_additinal_cases(&s, &i, argc, argv);
-			continue;
+			usage();
 		}
 
 		for (;*++s;)
@@ -359,7 +357,13 @@ void create_file_names()
 		exit(1);
 	}
 
-	MOD_declare_c_file(&len, file_prefix);			// <- modifed
+	len = strlen(file_prefix);
+
+	output_file_name = MALLOC(len + 7);
+	if (output_file_name == 0)
+		no_space();
+	strcpy(output_file_name, file_prefix);
+	strcpy(output_file_name + len, OUTPUT_SUFFIX);
 
 	if (rflag)
 	{
@@ -374,7 +378,11 @@ void create_file_names()
 
 	if (dflag)
 	{
-		MOD_declare_h_file(&len, file_prefix);			// <- modifed
+		defines_file_name = MALLOC(len + 7);
+		if (defines_file_name == 0)
+			no_space();
+		strcpy(defines_file_name, file_prefix);
+		strcpy(defines_file_name + len, DEFINES_SUFFIX);
 	}
 
 	if (vflag)

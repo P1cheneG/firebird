@@ -1,0 +1,19 @@
+diff a/extern/btyacc/reader.c b/extern/btyacc/reader.c	(rejected hunks)
+@@ -1258,7 +1258,7 @@ void start_rule(bucket *bp, int s_lineno)
+     plhs[nrules] = bp;
+     rprec[nrules] = UNDEFINED;
+     rassoc[nrules] = TOKEN;
+-	rule_line[nrules] = s_lineno;				// <- new
++	rule_line[nrules] = lineno;				// <- new
+ }
+ 
+ void end_rule()
+@@ -1305,7 +1305,7 @@ void insert_empty_rule()
+     rassoc[nrules] = rassoc[nrules-1];
+     rassoc[nrules-1] = TOKEN;
+ 	rule_line[nrules] = rule_line[nrules - 1];			// <- new
+-	rule_line[nrules - 1] = 0;
++	//rule_line[nrules - 1] = 0;
+ }
+ 
+ static char *insert_arg_rule(char *arg, char *tag)
