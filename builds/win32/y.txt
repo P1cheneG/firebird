@@ -1,2 +1,0 @@
-C:\Users\P1cheneG\DOCUME~1\firebird\firebird\temp\x64\debug\btyacc\btyacc: 3 rules never reduced
-C:\Users\P1cheneG\DOCUME~1\firebird\firebird\temp\x64\debug\btyacc\btyacc: 118 shift/reduce conflicts, 22 reduce/reduce conflicts.

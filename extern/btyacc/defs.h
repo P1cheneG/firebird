@@ -530,10 +530,8 @@ void return_err(void);
 
 int next_char(void);
 void read_types(void);
-void MOD_set_file_name(const char* filename);
-void MOD_write_conflicts(const action * firstRule, action * secondRule);
-void MOD_write_shifts(shifts * sp, action * pref);
-void write_conflicts(char* symbol, int ruleno);
+void MOD_set_file_name(const char *);
+void MOD_write_conflicts(const action *, action *);
 void double_name_err(void);
 
 void MOD_check_additinal_cases(char **, int *, int, char **);
