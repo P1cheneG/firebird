@@ -44,8 +44,6 @@ char *output_file_name;
 char *text_file_name;
 char *union_file_name;
 char *verbose_file_name;
-char *c_output_file_name;					// <- new
-char *h_output_file_name;					// <- new
 
 FILE *action_file;	/*  a temp file, used to save actions associated    */
 			/*  with rules until the parser is written	    */

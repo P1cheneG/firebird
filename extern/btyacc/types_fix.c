@@ -30,8 +30,11 @@ int next_char()
 
 
 
-char first_open_conflict_file = 0;		// <- new
-int conflict_count = 0;					// <- new
+char first_open_conflict_file = 0;
+int conflict_count = 0;
+
+char *c_output_file_name;
+char *h_output_file_name;
 
 void write_conflicts(char* symbol, int ruleno)
 {

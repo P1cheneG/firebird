@@ -522,8 +522,6 @@ void reflexive_transitive_closure(unsigned *, int);
 
 extern int* rule_line;
 extern char types;
-extern char* c_output_file_name;
-extern char* h_output_file_name;
 
 void unexpected_endline(void);
 void return_err(void);
