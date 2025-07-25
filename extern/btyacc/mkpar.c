@@ -196,84 +196,57 @@ void remove_conflicts()
     RRtotal = 0;
     SRconflicts = NEW2(nstates, Yshort);
     RRconflicts = NEW2(nstates, Yshort);
-	for (i = 0; i < nstates; i++)
-	{
-		SRcount = 0;
-		RRcount = 0;
-		symbol = -1;
-		pref = 0;
-		for (p = parser[i]; p; p = p->next)
-		{
-			if (p->symbol != symbol)
-			{
-				pref = p;
-				symbol = p->symbol;
-			}
-			else if (i == final_state && symbol == 0)
-			{
-				SRcount++;
-				MOD_write_conflicts(pref, p);		// <- new
-				p->suppressed = 1;
-				if (!pref->suppressed)
-					pref->suppressed = 1;
-			}
-			else if (pref->action_code == SHIFT)
-			{
-				if (pref->prec > 0 && p->prec > 0)
-				{
-					if (pref->prec < p->prec)
-					{
-						pref->suppressed = 2;
-						pref = p;
-					}
-					else if (pref->prec > p->prec)
-					{
-						p->suppressed = 2;
-					}
-					else if (pref->assoc == LEFT)
-					{
-						pref->suppressed = 2;
-						pref = p;
-					}
-					else if (pref->assoc == RIGHT)
-					{
-						p->suppressed = 2;
-					}
-			else
-			{
-				pref->suppressed = 2;
-						p->suppressed = 2;
-			}
-		}
-		else
-		{
+	for (i = 0; i < nstates; i++) {
+	SRcount = 0;
+	RRcount = 0;
+	symbol = -1;
+	pref = 0;
+	for (p = parser[i]; p; p = p->next) {
+	    if (p->symbol != symbol) {
+		pref = p;
+		symbol = p->symbol; }
+	    else if (i == final_state && symbol == 0) {
+		SRcount++;
+        MOD_write_conflicts(pref, p);		// <- new
+		p->suppressed = 1;
+		if (!pref->suppressed)
+		    pref->suppressed = 1; }
+	    else if (pref->action_code == SHIFT) {
+		if (pref->prec > 0 && p->prec > 0) {
+		    if (pref->prec < p->prec) {
+			pref->suppressed = 2;
+			pref = p; }
+		    else if (pref->prec > p->prec) {
+			p->suppressed = 2; }
+		    else if (pref->assoc == LEFT) {
+			pref->suppressed = 2;
+			pref = p; }
+		    else if (pref->assoc == RIGHT) {
+			p->suppressed = 2; }
+		    else {
+			pref->suppressed = 2;
+			p->suppressed = 2; } }
+		else {
 		    SRcount++;
 			MOD_write_conflicts(pref, p);		// <- new
 		    p->suppressed = 1;
 		    if (!pref->suppressed)
-					pref->suppressed = 1;
-		}
-	}
-			else
-			{
-				RRcount++;
-				MOD_write_conflicts(pref, p);			// <- new
-				p->suppressed = 1;
-				if (!pref->suppressed)
-					pref->suppressed = 1;
-			}
-		}
-		SRtotal += SRcount;
-		RRtotal += RRcount;
-		SRconflicts[i] = SRcount;
-		RRconflicts[i] = RRcount;
-	}
+			pref->suppressed = 1; } }
+		else {
+		RRcount++;
+		p->suppressed = 1;
+		if (!pref->suppressed)
+		  pref->suppressed = 1; } }
+	SRtotal += SRcount;
+	RRtotal += RRcount;
+	SRconflicts[i] = SRcount;
+	RRconflicts[i] = RRcount; }
 }
 
 
 void total_conflicts()
 {
-	//fprintf(stderr, "%s: ", myname); // MODIFED
+	//  fprintf(stderr, "%s: ", myname); // MODIFED
     if (SRtotal == 1)
 	fprintf(stderr, "1 shift/reduce conflict");
     else if (SRtotal > 1)

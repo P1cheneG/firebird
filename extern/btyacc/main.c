@@ -79,7 +79,6 @@ Yshort **derives;
 char *nullable;
 
 
-
 void done(int k)
 {
 	if (action_file) 
