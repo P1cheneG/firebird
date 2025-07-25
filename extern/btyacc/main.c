@@ -159,8 +159,8 @@ void no_more_options(int i, int argc, char* argv[])
 
 void getargs(int argc, char **argv)
 {
-	register int i;
-	register char *s;
+	int i;
+	char *s;
 
 	if (argc > 0) 
 		myname = argv[0];
@@ -245,7 +245,8 @@ void getargs(int argc, char **argv)
 			continue;
 
 		default:
-			usage();
+			MOD_check_additinal_cases(&s, &i, argc, argv);
+			continue;
 		}
 
 		for (;*++s;)
@@ -357,13 +358,7 @@ void create_file_names()
 		exit(1);
 	}
 
-	len = strlen(file_prefix);
-
-	output_file_name = MALLOC(len + 7);
-	if (output_file_name == 0)
-		no_space();
-	strcpy(output_file_name, file_prefix);
-	strcpy(output_file_name + len, OUTPUT_SUFFIX);
+	MOD_declare_c_file(&len, file_prefix);			// <- modifed
 
 	if (rflag)
 	{
@@ -378,11 +373,7 @@ void create_file_names()
 
 	if (dflag)
 	{
-		defines_file_name = MALLOC(len + 7);
-		if (defines_file_name == 0)
-			no_space();
-		strcpy(defines_file_name, file_prefix);
-		strcpy(defines_file_name + len, DEFINES_SUFFIX);
+		MOD_declare_h_file(&len, file_prefix);			// <- modifed
 	}
 
 	if (vflag)

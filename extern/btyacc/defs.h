@@ -522,6 +522,8 @@ void reflexive_transitive_closure(unsigned *, int);
 //! *****  Added functions and variables ******
 
 extern int* rule_line;
+extern char types;
+
 void unexpected_endline(void);
 void return_err(void);
 
@@ -531,3 +533,9 @@ void read_types(void);
 void MOD_set_file_name(const char* filename);
 void MOD_write_conflicts(const action * firstRule, action * secondRule);
 void MOD_write_shifts(shifts * sp, action * pref);
+void write_conflicts(char* symbol, int ruleno);
+void double_name_err(void);
+
+void MOD_check_additinal_cases(char **, int *, int, char **);
+void MOD_declare_c_file(int *, char *);
+void MOD_declare_h_file(int *, char *);
