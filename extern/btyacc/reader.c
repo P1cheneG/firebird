@@ -1242,6 +1242,7 @@ void advance_to_start()
 	if (args == 0) no_space();
 	c = nextc(); }
     if (c != ':') syntax_error(lineno, line, cptr);
+	first_rule = 0;										// <- modifed
     start_rule(bp, s_lineno);
     parse_arginfo(bp, args, argslen);
     ++cptr;
@@ -1705,6 +1706,7 @@ void read_grammar()
 	else if (c == '{' || c == '=' || c == '[')
 	    copy_action();
 	else if (c == '|') {
+		if (first_rule) syntax_error(lineno, line, cptr);								// <- modifed
 	    end_rule();
 	    start_rule(plhs[nrules-1], 0);
 	    ++cptr; }
