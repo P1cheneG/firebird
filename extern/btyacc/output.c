@@ -679,7 +679,7 @@ void output_table()
 
     ++outline;
 
-    fprintf(stderr, "YYTABLESIZE: %d\n", high);
+    //fprintf(stderr, "YYTABLESIZE: %d\n", high);
     if(high >= MAXSHORT) {
       fprintf(stderr, "Table is longer than %d elements. It's not gonna fly.\n", MAXSHORT);
       exit(1);
@@ -830,7 +830,7 @@ void output_defines()
 	s = symbol_name[i];
 	if (is_C_identifier(s))
 	{
-	    fprintf(dc_file, "#define ");
+		fprintf(dc_file, "#define TOK_"); //! <- modifed: #define -> #define TOK_
 	    c = *s;
 	    if (c == '"')
 	    {

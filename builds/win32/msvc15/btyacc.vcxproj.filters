@@ -57,6 +57,9 @@
     <ClCompile Include="..\..\..\extern\btyacc\warshall.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\extern\btyacc\types_fix.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\extern\btyacc\defs.h">

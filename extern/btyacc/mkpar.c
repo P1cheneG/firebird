@@ -205,6 +205,7 @@ void remove_conflicts()
 		symbol = p->symbol; }
 	    else if (i == final_state && symbol == 0) {
 		SRcount++;
+		write_conflicts(symbol_name[pref->symbol], pref->number);		// <- new
 		p->suppressed = 1;
 		if (!pref->suppressed)
 		    pref->suppressed = 1; }
@@ -225,11 +226,13 @@ void remove_conflicts()
 			p->suppressed = 2; } }
 		else {
 		    SRcount++;
+			write_conflicts(symbol_name[pref->symbol], pref->number);		// <- new
 		    p->suppressed = 1;
 		    if (!pref->suppressed)
 			pref->suppressed = 1; } }
 	    else {
 		RRcount++;
+		write_conflicts(symbol_name[pref->symbol], pref->number);			// <- new
 		p->suppressed = 1;
 		if (!pref->suppressed)
 		    pref->suppressed = 1; } }
@@ -317,4 +320,3 @@ void free_parser()
 
   FREE(parser);
 }
-
