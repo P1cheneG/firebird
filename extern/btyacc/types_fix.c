@@ -198,3 +198,41 @@ void MOD_declare_h_file(int *len, char *file_prefix) {
 		strcpy(defines_file_name + *len, DEFINES_SUFFIX);
 	}
 }
+
+void MOD_reset_CheckReturn(CheckingReturn* data) {
+	data->check_len = 0;
+	data->check_return = 1;
+}
+
+void MOD_check_return(CheckingReturn *data, int c) {
+	/*
+		Checking that there is no "return" operator in the text of the rule.
+		If a word starts with 'r', the next 7 characters are written to a special array,
+		if the array is equal to the string "return ",
+		that is, the "return" operator is found in the code,
+		the program will warn of an error.
+		*/
+	if (data->check_return)
+	{
+		if (data->check_len < 6) data->check_line[data->check_len++] = c;
+		if (data->check_len == 6)
+		{
+			data->check_line[6] = cptr[1];
+			data->check_line[7] = '\0';
+			if (strcmp(data->return_example, data->check_line) == 0)
+			{
+				return_err();
+			}
+			data->check_len++;
+			data->check_return = 0;
+		}
+	}
+}
+
+void MOD_set_rule_line(int maxrules) {
+	rule_line = NEW2(maxrules, int);
+	if (rule_line == 0) no_space();
+	rule_line[0] = 0;
+	rule_line[1] = 0;
+	rule_line[2] = 0;
+}

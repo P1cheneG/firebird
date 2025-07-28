@@ -524,6 +524,14 @@ void reflexive_transitive_closure(unsigned *, int);
 extern int* rule_line;
 extern char types;
 
+typedef struct CheckingReturn CheckingReturn;
+struct CheckingReturn {
+	char check_return;
+	int check_len;
+	char return_example[8];
+	char check_line[8];
+};
+
 void unexpected_endline(void);
 void return_err(void);
 
@@ -537,3 +545,8 @@ void double_name_err(void);
 void MOD_check_additinal_cases(char **, int *, int, char **);
 void MOD_declare_c_file(int *, char *);
 void MOD_declare_h_file(int *, char *);
+
+
+void MOD_check_return(CheckingReturn *, int);
+void MOD_reset_CheckReturn(CheckingReturn *);
+void MOD_set_rule_line(int);

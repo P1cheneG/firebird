@@ -947,11 +947,7 @@ void initialize_grammar()
     rassoc[0] = TOKEN;
     rassoc[1] = TOKEN;
     rassoc[2] = TOKEN;
-	rule_line = NEW2(maxrules, int);				// <- new
-	if (rule_line == 0) no_space();
-	rule_line[0] = 0;
-	rule_line[1] = 0;
-	rule_line[2] = 0;
+	MOD_set_rule_line(maxrules);				// <- new
 }
 
 void expand_items()
@@ -1412,11 +1408,7 @@ void copy_action()
     Yshort *offsets=0, maxoffset;
     bucket **rhs;
 
-	char check_return = 0;							// <- new
-	int check_len;									// <- new
-
-	char return_example[] = "return ";				// <- new
-	char check_line[8];								// <- new
+	CheckingReturn check_return = { 0, 0, "return ", "" };							// <- new
 
     if (last_was_action)
 	insert_empty_rule();
@@ -1536,33 +1528,11 @@ loop:
 		error(lineno, 0, 0, "untyped argument $%s", arg);
 	    goto loop; } }
     if (isalpha(c) || c == '_' || c == '$') {
-	if (c == 'r') {																			//	<- modifed
-		check_len = 0;
-		check_return = 1; }
+		if (c == 'r') {
+			MOD_reset_CheckReturn(&check_return); }													//	<- modifed
 	do {
 	    putc(c, f);
-		/*
-		Checking that there is no "return" operator in the text of the rule. 
-		If a word starts with 'r', the next 7 characters are written to a special array,
-		if the array is equal to the string "return ",
-		that is, the "return" operator is found in the code,
-		the program will warn of an error.
-		*/
-		if (check_return)																		// <- modifed start
-		{
-			if (check_len < 6) check_line[check_len++] = c;
-			if (check_len == 6)
-			{
-				check_line[6] = cptr[1];
-				check_line[7] = '\0';
-				if (strcmp(return_example, check_line) == 0)
-				{
-					return_err();
-				}
-				check_len++;
-				check_return = 0;
-			}
-		}																						// <- modifed end
+		MOD_check_return(&check_return, c);												//	<- modifed
 	    c = *++cptr;
 	} while (isalnum(c) || c == '_' || c == '$');
 	goto loop; }

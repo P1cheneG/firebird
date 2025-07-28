@@ -196,7 +196,7 @@ void remove_conflicts()
     RRtotal = 0;
     SRconflicts = NEW2(nstates, Yshort);
     RRconflicts = NEW2(nstates, Yshort);
-	for (i = 0; i < nstates; i++) {
+    for (i = 0; i < nstates; i++) {
 	SRcount = 0;
 	RRcount = 0;
 	symbol = -1;
@@ -232,11 +232,11 @@ void remove_conflicts()
 		    p->suppressed = 1;
 		    if (!pref->suppressed)
 			pref->suppressed = 1; } }
-		else {
+	    else {
 		RRcount++;
 		p->suppressed = 1;
 		if (!pref->suppressed)
-		  pref->suppressed = 1; } }
+		    pref->suppressed = 1; } }
 	SRtotal += SRcount;
 	RRtotal += RRcount;
 	SRconflicts[i] = SRcount;
@@ -246,7 +246,7 @@ void remove_conflicts()
 
 void total_conflicts()
 {
-	//  fprintf(stderr, "%s: ", myname); // MODIFED
+    //  fprintf(stderr, "%s: ", myname); // MODIFED
     if (SRtotal == 1)
 	fprintf(stderr, "1 shift/reduce conflict");
     else if (SRtotal > 1)
@@ -299,7 +299,7 @@ void defreds()
     for (i = 0; i < nstates; i++)
 	defred[i] = sole_reduction(i);
 }
-
+ 
 void free_action_row(action *p)
 {
   register action *q;
