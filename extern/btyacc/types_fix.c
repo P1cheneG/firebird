@@ -4,7 +4,18 @@
 const char* MOD_file_name = NULL;
 int* rule_line;			// <- new
 
+struct conflict {
+	const char* symbol;
+	const char* type;
+	int first_rule;
+	int second_rule;
+	int count;
+};
 
+struct conflict* conflicts = NULL;
+
+int conflicts_capacity = 0;
+int conflicts_count = 0;
 
 void MOD_set_file_name(const char* filename)
 {
@@ -91,7 +102,35 @@ void MOD_write_shifts(action* pref)
 }
 
 void MOD_write_conflicts(const action * firstRule, action * secondRule) {
-	FILE * ffile = NULL;
+	const char* symbol = symbol_name[firstRule->symbol];
+	const char* type = firstRule->action_code == SHIFT ? "shift/reduce" : "reduce/reduce";
+
+	if (conflicts_count == conflicts_capacity) {
+		int new_capacity = (conflicts_capacity == 0) ? 1 : conflicts_capacity * 2;
+		struct conflict* temp = realloc(conflicts, new_capacity * sizeof(struct conflict));
+		if (temp == NULL) {
+			free(conflicts);
+		}
+		conflicts = temp;
+		conflicts_capacity = new_capacity;
+	}
+	for (int i = 0; i < conflicts_count; i++) {
+		if (conflicts[i].type == type && conflicts[i].symbol == symbol && 
+			conflicts[i].first_rule == rule_line[firstRule->number] && 
+			conflicts[i].second_rule == rule_line[secondRule->number]) {
+			conflicts[i].count++;
+			return;
+		}
+	}
+	conflicts[conflicts_count].type = type;
+	conflicts[conflicts_count].symbol = symbol;
+	conflicts[conflicts_count].count = 1;
+	conflicts[conflicts_count].first_rule = rule_line[firstRule->number];
+	conflicts[conflicts_count++].second_rule = rule_line[secondRule->number];
+}
+
+void MOD_print_errors() {
+	FILE* ffile = NULL;
 	if (!first_open_conflict_file) {
 		ffile = fopen("conflicts_list.txt", "w");
 		first_open_conflict_file = 1;
@@ -103,16 +142,13 @@ void MOD_write_conflicts(const action * firstRule, action * secondRule) {
 		error(lineno, 0, 0, "Cannot open conflicts_list file for writing %s", "conflicts_list.txt");
 		return;
 	}
-	const char* symbol = symbol_name[firstRule->symbol];
-	const char* type = firstRule->action_code == SHIFT ? "shift/reduce" : "reduce/reduce";
-	//const char* bp = symbol_name[firstRuleno];
-	fprintf(ffile, "%s: %s conflict on lines %s:%d VS %s:%d\n", symbol, type,
-	MOD_file_name, rule_line[firstRule->number],
-	MOD_file_name, rule_line[secondRule->number]);
-	if (firstRule->action_code == SHIFT) {
-		MOD_write_shifts(firstRule);
-		MOD_write_shifts(secondRule);
+	for (int i = 0; i < conflicts_count; i++) {
+		fprintf(ffile, "%s: %s conflict on lines %s:%d VS %s:%d (%d times)\n", conflicts[i].symbol, conflicts[i].type,
+			MOD_file_name, conflicts[i].first_rule,
+			MOD_file_name, conflicts[i].second_rule,
+			conflicts[i].count);
 	}
+	free(conflicts);
 	fclose(ffile);
 }
 

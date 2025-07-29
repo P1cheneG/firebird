@@ -241,6 +241,7 @@ void remove_conflicts()
 	RRtotal += RRcount;
 	SRconflicts[i] = SRcount;
 	RRconflicts[i] = RRcount; }
+	MOD_print_errors();
 }
 
 

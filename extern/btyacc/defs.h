@@ -550,3 +550,5 @@ void MOD_declare_h_file(int *, char *);
 void MOD_check_return(CheckingReturn *, int);
 void MOD_reset_CheckReturn(CheckingReturn *);
 void MOD_set_rule_line(int);
+
+void MOD_print_errors(void);
