@@ -17,7 +17,7 @@ static int RRcount;
 action *parse_actions(int stateno);
 action *get_shifts(int stateno);
 action *add_reductions(int stateno, action *actions);
-action *add_reduce(action *actions, int ruleno, int symbol);
+action *add_reduce(action *actions, int ruleno, int symbol, int stateno);
 
 
 void make_parser()
@@ -67,6 +67,7 @@ action *get_shifts(int stateno)
 		temp->next = actions;
 		temp->symbol = symbol;
 		temp->number = k;
+		temp->state = stateno;
 		temp->prec = symbol_prec[symbol];
 		temp->action_code = SHIFT;
 		temp->assoc = symbol_assoc[symbol];
@@ -93,13 +94,13 @@ action *add_reductions(int stateno, action *actions)
 	for (j = ntokens - 1; j >= 0; j--)
 	{
 	    if (BIT(rowp, j))
-		actions = add_reduce(actions, ruleno, j);
+		actions = add_reduce(actions, ruleno, j, stateno);
 	}
     }
     return (actions);
 }
 
-action *add_reduce(action *actions, int ruleno, int symbol)
+action *add_reduce(action *actions, int ruleno, int symbol, int stateno)
 {
     register action *temp, *prev, *next;
 
@@ -124,6 +125,7 @@ action *add_reduce(action *actions, int ruleno, int symbol)
     temp->next = next;
     temp->symbol = symbol;
     temp->number = ruleno;
+	temp->state = stateno;
     temp->prec = rprec[ruleno];
     temp->action_code = REDUCE;
     temp->assoc = rassoc[ruleno];
@@ -205,6 +207,7 @@ void remove_conflicts()
 		symbol = p->symbol; }
 	    else if (i == final_state && symbol == 0) {
 		SRcount++;
+        MOD_write_conflicts(pref, p);		// <- new
 		p->suppressed = 1;
 		if (!pref->suppressed)
 		    pref->suppressed = 1; }
@@ -225,6 +228,7 @@ void remove_conflicts()
 			p->suppressed = 2; } }
 		else {
 		    SRcount++;
+			MOD_write_conflicts(pref, p);		// <- new
 		    p->suppressed = 1;
 		    if (!pref->suppressed)
 			pref->suppressed = 1; } }
@@ -237,12 +241,13 @@ void remove_conflicts()
 	RRtotal += RRcount;
 	SRconflicts[i] = SRcount;
 	RRconflicts[i] = RRcount; }
+	MOD_print_errors();
 }
 
 
 void total_conflicts()
 {
-    fprintf(stderr, "%s: ", myname);
+    //  fprintf(stderr, "%s: ", myname); // MODIFED
     if (SRtotal == 1)
 	fprintf(stderr, "1 shift/reduce conflict");
     else if (SRtotal > 1)
@@ -317,4 +322,3 @@ void free_parser()
 
   FREE(parser);
 }
-

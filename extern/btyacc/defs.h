@@ -188,7 +188,8 @@ struct action
     struct action *next;
     Yshort symbol;
     Yshort number;
-    Yshort prec;
+	Yshort prec;
+	Yshort state;
     char   action_code;
     char   assoc;
     char   suppressed;
@@ -516,3 +517,38 @@ void print_gotos(int);
 /* warshall.c */
 void transitive_closure(unsigned *, int);
 void reflexive_transitive_closure(unsigned *, int);
+
+
+//! *****  Added functions and variables ******
+
+extern int* rule_line;
+extern char types;
+
+typedef struct CheckingReturn CheckingReturn;
+struct CheckingReturn {
+	char check_return;
+	int check_len;
+	char return_example[8];
+	char check_line[8];
+};
+
+void unexpected_endline(void);
+void return_err(void);
+
+
+int next_char(void);
+void read_types(void);
+void MOD_set_file_name(const char *);
+void MOD_write_conflicts(const action *, action *);
+void double_name_err(void);
+
+void MOD_check_additinal_cases(char **, int *, int, char **);
+void MOD_declare_c_file(int *, char *);
+void MOD_declare_h_file(int *, char *);
+
+
+void MOD_check_return(CheckingReturn *, int);
+void MOD_reset_CheckReturn(CheckingReturn *);
+void MOD_set_rule_line(int);
+
+void MOD_print_errors(void);

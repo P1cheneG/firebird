@@ -48,6 +48,9 @@ char *name_pool;
 
 char line_format[] = "#line %d \"%s\"\n";
 
+char types = 0;				// <- new
+char first_rule = 1;		// <- new
+
 int cachec(int c)
 {
     assert(cinc >= 0);
@@ -236,13 +239,14 @@ int nextc()
 	case '\n':
 	    if ((s = get_line()) == 0) return EOF;
 	    break;
+	case ';':
+		first_rule = 1;
 	case ' ':
 	case '\t':
 	case '\f':
 	case '\r':
 	case '\v':
 	case ',':
-	case ';':
 	    ++s;
 	    break;
 	case '\\':
@@ -512,8 +516,11 @@ bucket *get_literal()
 	    c = *cptr++;
 	    switch (c) {
 	    case '\n':
-		get_line();
-		if (line == 0) unterminated_string(s_lineno, s_line, s_cptr);
+		if (types) {															// <- modifed start
+			unterminated_string(s_lineno, s_line, s_cptr); }
+		else { 
+			get_line();
+			if (line == 0) unterminated_string(s_lineno, s_line, s_cptr); }		// <- modifed end
 		continue;
 	    case '0': case '1': case '2': case '3':
 	    case '4': case '5': case '6': case '7':
@@ -713,16 +720,24 @@ char *get_tag()
     char *t_cptr = t_line + (cptr - line);
 
     ++cptr;
-    c = nextc();
-    if (c == EOF) unexpected_EOF();
+	if (types) {											// <-modifed start
+		c = next_char();								
+		if (c == '\n') unexpected_endline(); }			
+	else {
+		c = nextc();
+		if (c == EOF) unexpected_EOF(); }					// <- modifed end
     if (!isalpha(c) && c != '_' && c != '$')
 	illegal_tag(t_lineno, t_line, t_cptr);
 
     cinc = 0;
     do { cachec(c); c = *++cptr; } while (IS_IDENT(c));
 
-    c = nextc();
-    if (c == EOF) unexpected_EOF();
+    if (types) {											// <-modifed start
+		c = next_char();								
+		if (c == '\n') unexpected_endline(); }			
+	else {
+		c = nextc();
+		if (c == EOF) unexpected_EOF(); }					// <- modifed end
     if (c != '>')
 	illegal_tag(t_lineno, t_line, t_cptr);
     ++cptr;
@@ -798,13 +813,15 @@ int	args = 0, c;
     if (bp->args >= 0) retyped_warning(bp->name);
     cptr++; /* skip open paren */
     for (;;) {
-	c = nextc();
+	c = types ? next_char() : nextc();							// <- modifed
 	if (c == EOF) unexpected_EOF();
+	if (c == '\n' && types) unexpected_endline();				// <- modifed
 	if (c != '<') syntax_error(lineno, line, cptr);
 	tags[args++] = get_tag();
-	c = nextc();
+	c = types ? next_char() : nextc();							// <- modifed
 	if (c == ')') break;
-	if (c == EOF) unexpected_EOF(); }
+	if (c == EOF) unexpected_EOF();
+	if (c == '\n' && types) unexpected_endline(); }				// <- modifed
     cptr++; /* skip close paren */
     bp->args = args;
     if (!(bp->argnames = NEW2(args, char *))) no_space();
@@ -820,17 +837,18 @@ void declare_types()
     register bucket *bp=0;
     char *tag=0;
 
-    c = nextc();
+    c = types ? next_char() : nextc();							// <- modifed
     if (c == '<') {
-	tag = get_tag();
-	c = nextc(); }
+		tag = get_tag();
+		c = types ? next_char() : nextc(); }					// <- modifed
     if (c == EOF) unexpected_EOF();
+	if (c == '\n' && types) unexpected_endline();				// <- modifed
 
     for (;;) {
-	c = nextc();
+	c = types ? next_char() : nextc();							// <- modifed
 	if (isalpha(c) || c == '_' || c == '.' || c == '$') {
 	    bp = get_name();
-	    if (nextc() == '(')
+	    if ((types ? next_char() : nextc()) == '(')				// <- modifed
 		declare_argtypes(bp);
 	    else
 		bp->args = 0; }
@@ -929,6 +947,7 @@ void initialize_grammar()
     rassoc[0] = TOKEN;
     rassoc[1] = TOKEN;
     rassoc[2] = TOKEN;
+	MOD_set_rule_line(maxrules);				// <- new
 }
 
 void expand_items()
@@ -947,6 +966,8 @@ void expand_rules()
     if (rprec == 0) no_space();
     rassoc = RENEW(rassoc, maxrules, char);
     if (rassoc == 0) no_space();
+	rule_line = RENEW(rule_line, maxrules, int);				// <- new
+	if (rule_line == 0) no_space();
 }
 
 /* set in copy_args and incremented by the various routines that will rescan
@@ -1217,6 +1238,7 @@ void advance_to_start()
 	if (args == 0) no_space();
 	c = nextc(); }
     if (c != ':') syntax_error(lineno, line, cptr);
+	first_rule = 0;										// <- modifed
     start_rule(bp, s_lineno);
     parse_arginfo(bp, args, argslen);
     ++cptr;
@@ -1233,6 +1255,7 @@ void start_rule(bucket *bp, int s_lineno)
     plhs[nrules] = bp;
     rprec[nrules] = UNDEFINED;
     rassoc[nrules] = TOKEN;
+	rule_line[nrules] = lineno;				// <- new
 }
 
 void end_rule()
@@ -1278,6 +1301,8 @@ void insert_empty_rule()
     rprec[nrules-1] = 0;
     rassoc[nrules] = rassoc[nrules-1];
     rassoc[nrules-1] = TOKEN;
+	rule_line[nrules] = rule_line[nrules - 1];			// <- new
+	//rule_line[nrules - 1] = 0;
 }
 
 static char *insert_arg_rule(char *arg, char *tag)
@@ -1326,12 +1351,18 @@ void add_symbol()
 	args = copy_args(&argslen);
 	if (args == 0) no_space();
 	c = nextc(); }
+	if (c == '|' && first_rule) syntax_error(lineno, line, cptr);			// <- modifed start
     if (c == ':') {
-	end_rule();
-	start_rule(bp, s_lineno);
-	parse_arginfo(bp, args, argslen);
-	++cptr;
-	return; }
+		// checking that ':' occurs only 1 time in the rule
+		if (first_rule)	{
+			first_rule = 0;
+			end_rule();
+			start_rule(bp, s_lineno);
+			parse_arginfo(bp, args, argslen);
+			++cptr;
+			return; }
+		else {
+			syntax_error(lineno, line, cptr); } }							// <- modifed end
 
     if (last_was_action)
 	insert_empty_rule();
@@ -1377,6 +1408,8 @@ void copy_action()
     char *a_cptr = a_line + (cptr - line);
     Yshort *offsets=0, maxoffset;
     bucket **rhs;
+
+	CheckingReturn check_return = { 0, 0, "return ", "" };							// <- new
 
     if (last_was_action)
 	insert_empty_rule();
@@ -1496,8 +1529,11 @@ loop:
 		error(lineno, 0, 0, "untyped argument $%s", arg);
 	    goto loop; } }
     if (isalpha(c) || c == '_' || c == '$') {
+		if (c == 'r') {
+			MOD_reset_CheckReturn(&check_return); }													//	<- modifed
 	do {
 	    putc(c, f);
+		MOD_check_return(&check_return, c);												//	<- modifed
 	    c = *++cptr;
 	} while (isalnum(c) || c == '_' || c == '$');
 	goto loop; }
@@ -1617,6 +1653,7 @@ int mark_symbol()
 
     rprec[nrules] = bp->prec;
     rassoc[nrules] = bp->assoc;
+	rule_line[nrules] = lineno;				// <- new
     return (0);
 }
 
@@ -1630,7 +1667,11 @@ void read_grammar()
     for (;;) {
 	c = nextc();
 	if (c == EOF) break;
-	if (isalpha(c) || c == '_' || c == '.' || c == '$' || c == '\'' ||
+	// skipping lines starting with "%type " in the grammar part of the input_file
+	if (strncmp(&line[0], "%type ", 6) == 0) {											// <- modifed
+		get_line();
+		continue; }
+	else if (isalpha(c) || c == '_' || c == '.' || c == '$' || c == '\'' ||
 		c == '"')
 	    add_symbol();
 	else if (c == '{' || c == '=' || c == '[')
@@ -1805,6 +1846,8 @@ void pack_grammar()
     if (rprec == 0) no_space();
     rassoc = RENEW(rassoc, nrules, char);
     if (rassoc == 0) no_space();
+	rule_line = RENEW(rule_line, nrules, int);			// <- modifed
+	if (rule_line == 0) no_space();						// <- modifed
 
     ritem[0] = -1;
     ritem[1] = goal->index;
@@ -1881,6 +1924,7 @@ extern int read_errs;
 void reader() {
   write_section("banner");
   create_symbol_table();
+  read_types();		// <- modifed: added call
   read_declarations();
   read_grammar();
   if(read_errs) done(1);
@@ -1892,4 +1936,60 @@ void reader() {
   pack_grammar();
   free_symbols();
   print_grammar();
+}
+
+
+
+//! *****  Added function ******
+
+// read_types() a function that reads the entire grammar file and search all types declarations
+
+void read_types() {
+	FILE* input_file;
+	int c;
+	int i;
+	char saw_eoff = 0;
+	input_file = fopen(input_file_name, "r");
+	types = 1;
+NextLine:;
+	i = 0;
+	// checking the end of the file
+	if (saw_eoff || (c = getc(input_file)) == EOF) {
+		if (line) FREE(line);
+		line = NULL;
+		saw_eoff = 1;
+		lineno = 0;
+		cptr = NULL;
+		types = 0;
+		return;
+	}
+
+	// managing memory allocation for the line buffer
+	if (line == 0 || linesize != (LINESIZE + 1)) {
+		if (line) FREE(line);
+		linesize = LINESIZE + 1;
+		if (!(line = MALLOC(linesize))) no_space();
+	}
+	++lineno;
+
+	// reading a line
+	while ((line[i] = c) != '\n') {
+		if (++i + 1 >= linesize)
+			if (!(line = REALLOC(line, linesize += LINESIZE)))
+				no_space();
+		if ((c = getc(input_file)) == EOF) {
+			c = '\n';
+			saw_eoff = 1;
+		}
+	}
+	line[i + 1] = 0;
+	cptr = line;
+	// check if line starts with "%type "
+	if (strncmp(&line[0], "%type ", 6) == 0) {
+		// skip substring "%type "
+		cptr += 6;
+		// write new type to the program
+		declare_types();
+	}
+	goto NextLine;
 }
