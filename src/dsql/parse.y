@@ -3806,7 +3806,7 @@ errors($exceptionArray)
 
 %type err(<exceptionArray>)
 err($exceptionArray)
-	| SQLCODE signed_short_integer
+	: SQLCODE signed_short_integer
 		{
 			ExceptionItem& item = $exceptionArray->add();
 			item.type = ExceptionItem::SQL_CODE;
