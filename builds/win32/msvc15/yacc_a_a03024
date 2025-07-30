@@ -1,0 +1,330 @@
+case 1:
+  if (!yytrial)
+{
+			if (requireSemicolon)
+				yyerrorIncompleteCmd(YYPOSNARG(1));
+
+			parsedStatement = yyvsp[0].dsqlStatement;
+		}
+break;
+case 2:
+  if (!yytrial)
+{ parsedStatement = yyvsp[-1].dsqlStatement; }
+break;
+case 3:
+  if (!yytrial)
+{ yyval.dsqlStatement = FB_NEW_POOL(*statementPool) DsqlDmlStatement(*statementPool, scratch->getAttachment(), yyvsp[0].stmtNode); }
+break;
+case 4:
+  if (!yytrial)
+{ yyval.dsqlStatement = FB_NEW_POOL(*statementPool) DsqlDdlStatement(*statementPool, scratch->getAttachment(), yyvsp[0].ddlNode); }
+break;
+case 5:
+  if (!yytrial)
+{ yyval.dsqlStatement = FB_NEW_POOL(*statementPool) DsqlTransactionStatement(*statementPool, scratch->getAttachment(), yyvsp[0].traNode); }
+break;
+case 6:
+  if (!yytrial)
+{
+			yyval.dsqlStatement = FB_NEW_POOL(*statementPool) DsqlSessionManagementStatement(
+				*statementPool, scratch->getAttachment(), yyvsp[0].mngNode);
+		}
+break;
+case 7:
+  if (!yytrial)
+{ yyval.stmtNode = yyvsp[0].stmtNode; }
+break;
+case 8:
+  if (!yytrial)
+{ yyval.stmtNode = yyvsp[0].storeNode; }
+break;
+case 9:
+  if (!yytrial)
+{ yyval.stmtNode = yyvsp[0].mergeNode; }
+break;
+case 10:
+  if (!yytrial)
+{ yyval.stmtNode = yyvsp[0].stmtNode; }
+break;
+case 11:
+  if (!yytrial)
+{ yyval.stmtNode = yyvsp[0].stmtNode; }
+break;
+case 12:
+  if (!yytrial)
+{ yyval.stmtNode = yyvsp[0].execBlockNode; }
+break;
+case 13:
+  if (!yytrial)
+{ yyval.stmtNode = yyvsp[0].selectNode; }
+break;
+case 14:
+  if (!yytrial)
+{ yyval.stmtNode = yyvsp[0].stmtNode; }
+break;
+case 15:
+  if (!yytrial)
+{ yyval.stmtNode = yyvsp[0].updInsNode; }
+break;
+case 16:
+  if (!yytrial)
+{ yyval.ddlNode = yyvsp[0].ddlNode; }
+break;
+case 17:
+  if (!yytrial)
+{ yyval.ddlNode = yyvsp[0].ddlNode; }
+break;
+case 18:
+  if (!yytrial)
+{ yyval.ddlNode = yyvsp[0].ddlNode; }
+break;
+case 19:
+  if (!yytrial)
+{ yyval.ddlNode = yyvsp[0].ddlNode; }
+break;
+case 20:
+  if (!yytrial)
+{ yyval.ddlNode = yyvsp[0].ddlNode; }
+break;
+case 21:
+  if (!yytrial)
+{ yyval.ddlNode = yyvsp[0].ddlNode; }
+break;
+case 22:
+  if (!yytrial)
+{ yyval.ddlNode = yyvsp[0].grantRevokeNode; }
+break;
+case 23:
+  if (!yytrial)
+{ yyval.ddlNode = yyvsp[0].ddlNode; }
+break;
+case 24:
+  if (!yytrial)
+{ yyval.ddlNode = yyvsp[0].grantRevokeNode; }
+break;
+case 25:
+  if (!yytrial)
+{ yyval.ddlNode = yyvsp[0].ddlNode; }
+break;
+case 26:
+  if (!yytrial)
+{ yyval.traNode = yyvsp[0].setTransactionNode; }
+break;
+case 27:
+  if (!yytrial)
+{ yyval.traNode = yyvsp[0].traNode; }
+break;
+case 28:
+  if (!yytrial)
+{ yyval.traNode = yyvsp[0].traNode; }
+break;
+case 29:
+  if (!yytrial)
+{ yyval.traNode = yyvsp[0].traNode; }
+break;
+case 30:
+  if (!yytrial)
+{ yyval.mngNode = yyvsp[0].mngNode; }
+break;
+case 31:
+  if (!yytrial)
+{ yyval.mngNode = yyvsp[0].setDecFloatRoundNode; }
+break;
+case 32:
+  if (!yytrial)
+{ yyval.mngNode = yyvsp[0].setDecFloatTrapsNode; }
+break;
+case 33:
+  if (!yytrial)
+{ yyval.mngNode = yyvsp[0].setSessionNode; }
+break;
+case 34:
+  if (!yytrial)
+{ yyval.mngNode = yyvsp[0].setRoleNode; }
+break;
+case 35:
+  if (!yytrial)
+{ yyval.mngNode = yyvsp[0].sessionResetNode; }
+break;
+case 36:
+  if (!yytrial)
+{ yyval.mngNode = yyvsp[0].mngNode; }
+break;
+case 37:
+  if (!yytrial)
+{ yyval.mngNode = yyvsp[0].setBindNode; }
+break;
+case 38:
+  if (!yytrial)
+{ yyval.mngNode = yyvsp[0].mngNode; }
+break;
+case 39:
+  if (!yytrial)
+{ yyval.grantRevokeNode = newNode<GrantRevokeNode>(true); }
+break;
+case 40:
+yyval.grantRevokeNode = yyvsp[0].grantRevokeNode;
+break;
+case 41:
+  if (!yytrial)
+{ yyval.grantRevokeNode = yyvsp[-2].grantRevokeNode; }
+break;
+case 42:
+yyval.privilegeArray = NOTRIAL(&yyvsp[0].grantRevokeNode->privileges);
+break;
+case 43:
+yyval.granteeArray = NOTRIAL(&yyvsp[-6].grantRevokeNode->users);
+break;
+case 44:
+  if (!yytrial)
+{
+			yyvsp[-10].grantRevokeNode->object = newNode<GranteeClause>(obj_relation, *yyvsp[-5].metaNamePtr);
+			yyvsp[-10].grantRevokeNode->grantAdminOption = yyvsp[-1].boolVal;
+			yyvsp[-10].grantRevokeNode->grantor = yyvsp[0].metaNamePtr;
+		}
+break;
+case 45:
+  if (!yytrial)
+{
+			yyvsp[-10].grantRevokeNode->object = newNode<GranteeClause>(obj_procedure, *yyvsp[-5].metaNamePtr);
+			yyvsp[-10].grantRevokeNode->grantAdminOption = yyvsp[-1].boolVal;
+			yyvsp[-10].grantRevokeNode->grantor = yyvsp[0].metaNamePtr;
+		}
+break;
+case 46:
+  if (!yytrial)
+{
+			yyvsp[-10].grantRevokeNode->object = newNode<GranteeClause>(obj_udf, *yyvsp[-5].metaNamePtr);
+			yyvsp[-10].grantRevokeNode->grantAdminOption = yyvsp[-1].boolVal;
+			yyvsp[-10].grantRevokeNode->grantor = yyvsp[0].metaNamePtr;
+		}
+break;
+case 47:
+  if (!yytrial)
+{
+			yyvsp[-10].grantRevokeNode->object = newNode<GranteeClause>(obj_package_header, *yyvsp[-5].metaNamePtr);
+			yyvsp[-10].grantRevokeNode->grantAdminOption = yyvsp[-1].boolVal;
+			yyvsp[-10].grantRevokeNode->grantor = yyvsp[0].metaNamePtr;
+		}
+break;
+case 48:
+  if (!yytrial)
+{
+			yyvsp[-10].grantRevokeNode->object = newNode<GranteeClause>(obj_exception, *yyvsp[-5].metaNamePtr);
+			yyvsp[-10].grantRevokeNode->grantAdminOption = yyvsp[-1].boolVal;
+			yyvsp[-10].grantRevokeNode->grantor = yyvsp[0].metaNamePtr;
+		}
+break;
+case 49:
+  if (!yytrial)
+{
+			yyvsp[-10].grantRevokeNode->object = newNode<GranteeClause>(obj_generator, *yyvsp[-5].metaNamePtr);
+			yyvsp[-10].grantRevokeNode->grantAdminOption = yyvsp[-1].boolVal;
+			yyvsp[-10].grantRevokeNode->grantor = yyvsp[0].metaNamePtr;
+		}
+break;
+case 50:
+  if (!yytrial)
+{
+			yyvsp[-10].grantRevokeNode->object = newNode<GranteeClause>(obj_generator, *yyvsp[-5].metaNamePtr);
+			yyvsp[-10].grantRevokeNode->grantAdminOption = yyvsp[-1].boolVal;
+			yyvsp[-10].grantRevokeNode->grantor = yyvsp[0].metaNamePtr;
+		}
+break;
+case 51:
+yyval.granteeArray = NOTRIAL(&yyvsp[-4].grantRevokeNode->users);
+break;
+case 52:
+  if (!yytrial)
+{
+			yyvsp[-8].grantRevokeNode->object = yyvsp[-5].granteeClause;
+			yyvsp[-8].grantRevokeNode->grantAdminOption = yyvsp[-1].boolVal;
+			yyvsp[-8].grantRevokeNode->grantor = yyvsp[0].metaNamePtr;
+			yyvsp[-8].grantRevokeNode->isDdl = true;
+		}
+break;
+case 53:
+  if (!yytrial)
+{
+			yyvsp[-8].grantRevokeNode->object = newNode<GranteeClause>(obj_database, getSecurityClassName(obj_database));
+			yyvsp[-8].grantRevokeNode->grantAdminOption = yyvsp[-1].boolVal;
+			yyvsp[-8].grantRevokeNode->grantor = yyvsp[0].metaNamePtr;
+			yyvsp[-8].grantRevokeNode->isDdl = true;
+		}
+break;
+case 54:
+yyval.grantRevokeNode = NOTRIAL(yyvsp[0].grantRevokeNode);
+break;
+case 55:
+yyval.granteeArray = NOTRIAL(&yyvsp[-3].grantRevokeNode->users);
+break;
+case 56:
+  if (!yytrial)
+{
+			yyvsp[-7].grantRevokeNode->grantAdminOption = yyvsp[-1].boolVal;
+			yyvsp[-7].grantRevokeNode->grantor = yyvsp[0].metaNamePtr;
+		}
+break;
+case 57:
+  if (!yytrial)
+{ yyval.granteeClause = newNode<GranteeClause>(obj_relations, getSecurityClassName(obj_relations)); }
+break;
+case 58:
+  if (!yytrial)
+{ yyval.granteeClause = newNode<GranteeClause>(obj_views, getSecurityClassName(obj_views)); }
+break;
+case 59:
+  if (!yytrial)
+{ yyval.granteeClause = newNode<GranteeClause>(obj_procedures, getSecurityClassName(obj_procedures)); }
+break;
+case 60:
+  if (!yytrial)
+{ yyval.granteeClause = newNode<GranteeClause>(obj_functions, getSecurityClassName(obj_functions)); }
+break;
+case 61:
+  if (!yytrial)
+{ yyval.granteeClause = newNode<GranteeClause>(obj_packages, getSecurityClassName(obj_packages)); }
+break;
+case 62:
+  if (!yytrial)
+{ yyval.granteeClause = newNode<GranteeClause>(obj_generators, getSecurityClassName(obj_generators)); }
+break;
+case 63:
+  if (!yytrial)
+{ yyval.granteeClause = newNode<GranteeClause>(obj_generators, getSecurityClassName(obj_generators)); }
+break;
+case 64:
+  if (!yytrial)
+{ yyval.granteeClause = newNode<GranteeClause>(obj_domains, getSecurityClassName(obj_domains)); }
+break;
+case 65:
+  if (!yytrial)
+{ yyval.granteeClause = newNode<GranteeClause>(obj_exceptions, getSecurityClassName(obj_exceptions)); }
+break;
+case 66:
+  if (!yytrial)
+{ yyval.granteeClause = newNode<GranteeClause>(obj_roles, getSecurityClassName(obj_roles)); }
+break;
+case 67:
+  if (!yytrial)
+{ yyval.granteeClause = newNode<GranteeClause>(obj_charsets, getSecurityClassName(obj_charsets)); }
+break;
+case 68:
+  if (!yytrial)
+{ yyval.granteeClause = newNode<GranteeClause>(obj_collations, getSecurityClassName(obj_collations)); }
+break;
+case 69:
+  if (!yytrial)
+{ yyval.granteeClause = newNode<GranteeClause>(obj_filters, getSecurityClassName(obj_filters)); }
+break;
+case 72:
+  if (!yytrial)
+{ yyvsp[-1].privilegeArray->add(PrivilegeClause('A', NULL)); }
+break;
+case 73:
+  if (!yytrial)
+{ yyvsp[-2].privilegeArray->add(PrivilegeClause('A', NULL)); }
+break;
+case 74:
+yyval.privilegeArray = yyvsp[0].privilegeArray;
+break;

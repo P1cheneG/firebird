@@ -1351,9 +1351,10 @@ void add_symbol()
 	args = copy_args(&argslen);
 	if (args == 0) no_space();
 	c = nextc(); }
+	if (c == '|' && first_rule) syntax_error(lineno, line, cptr);			// <- modifed start
     if (c == ':') {
 		// checking that ':' occurs only 1 time in the rule
-		if (first_rule)	{											// <- modifed start
+		if (first_rule)	{
 			first_rule = 0;
 			end_rule();
 			start_rule(bp, s_lineno);
@@ -1361,7 +1362,7 @@ void add_symbol()
 			++cptr;
 			return; }
 		else {
-			syntax_error(lineno, line, cptr); } }					// <- modifed end
+			syntax_error(lineno, line, cptr); } }							// <- modifed end
 
     if (last_was_action)
 	insert_empty_rule();
@@ -1676,7 +1677,6 @@ void read_grammar()
 	else if (c == '{' || c == '=' || c == '[')
 	    copy_action();
 	else if (c == '|') {
-		if (first_rule) syntax_error(lineno, line, cptr);								// <- modifed
 	    end_rule();
 	    start_rule(plhs[nrules-1], 0);
 	    ++cptr; }
